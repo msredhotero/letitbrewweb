@@ -12,21 +12,17 @@ if (!isset($_SESSION['usua_predio']))
 include ('../../includes/funciones.php');
 include ('../../includes/funcionesUsuarios.php');
 include ('../../includes/funcionesHTML.php');
-include ('../../includes/funcionesFacturas.php');
-include ('../../includes/funcionesClientes.php');
-include ('../../includes/funcionesEmpresas.php');
+
 
 $serviciosFunciones = new Servicios();
 $serviciosUsuario 	= new ServiciosUsuarios();
 $serviciosHTML 		= new ServiciosHTML();
-$serviciosFactuas 	= new ServiciosFacturas();
-$serviciosClientes	= new ServiciosClientes();
-$serviciosEmpresas	= new ServiciosEmpresas();
+
 
 $fecha = date('Y-m-d');
 
 //$resProductos = $serviciosProductos->traerProductosLimite(6);
-$resMenu = $serviciosHTML->menu(utf8_encode($_SESSION['nombre_predio']),"Usuarios",$_SESSION['refroll_predio'],utf8_encode($_SESSION['usua_empresa']));
+//$resMenu = $serviciosHTML->menu(utf8_encode($_SESSION['nombre_predio']),"Usuarios",$_SESSION['refroll_predio'],utf8_encode($_SESSION['usua_empresa']));
 
 
 $id = $_GET['id'];
@@ -39,7 +35,7 @@ $tabla 			= "dbusuarios";
 $lblCambio	 	= array("refroll","nombrecompleto");
 $lblreemplazo	= array("Perfil","Nombre Completo");
 
-if ($_SESSION['idroll_predio'] != 1) {
+if ($_SESSION['refroll_predio'] != 1) {
 	$resRoles 	= $serviciosUsuario->traerRolesSimple();
 } else {
 	$resRoles 	= $serviciosUsuario->traerRoles();
@@ -88,11 +84,11 @@ if ($_SESSION['refroll_predio'] != 1) {
 
 
 
-<title>Gestión: Facturación - Cuentas Por Cobrar</title>
+<title>Gestión: Let it Brew</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
-<link href="../../css/estiloDash.css" rel="stylesheet" type="text/css">
+<link href="../../css/estilo.css" rel="stylesheet" type="text/css">
     
 
     
@@ -129,18 +125,46 @@ if ($_SESSION['refroll_predio'] != 1) {
 
 <body>
 
- <?php echo $resMenu; ?>
 
-<div id="content">
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Let it Brew</a>
+    </div>
 
-<h3>Usuarios</h3>
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li><a href="../">Panel de Control</a></li>
+        <li><a href="../tiposcervezas/">Tipos de Cervezas</a></li>
+        <li><a href="../ventas/">Ventas</a></li>
+        <li class="active"><a href="index.php">Usuarios <span class="sr-only">(current)</span></a></li>
+        <li><a href="../estadisticas/">Estadisticas</a></li>
+        <li><a href="../informes/">Informes</a></li>
+        <li><a href="../../logout.php">Salir</a></li>
+      </ul>
+      
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav> 
 
-    <div class="boxInfoLargo">
-        <div id="headBoxInfo">
+
+<div class="row" style="padding:2%;">
+<h3 style="color:#FFF;">Usuarios</h3>
+
+    <div class="panel panel-primary">
+        <div id="panel-heading">
         	<p style="color: #fff; font-size:18px; height:16px;">Modificar Usuario</p>
         	
         </div>
-    	<div class="cuerpoBox">
+    	<div class="panel-body">
         	<form class="form-inline formulario" role="form">
         	
 			<div class="row">
@@ -183,7 +207,7 @@ if ($_SESSION['refroll_predio'] != 1) {
 
 </div>
 
-<div id="dialog2" title="Eliminar Equipos">
+<div id="dialog2" title="Eliminar Usuario">
     	<p>
         	<span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>
             ¿Esta seguro que desea eliminar el Usuario?.<span id="proveedorEli"></span>
