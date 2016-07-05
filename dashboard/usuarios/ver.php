@@ -13,11 +13,10 @@ require '../../includes/funcionesProductos.php';
 
 $serviciosProductos = new ServiciosProductos();
 
-$id = $_GET['id'];
-
-$resProveedores = $serviciosProductos->traerProveedoresPorId($id);;
+$resProveedores = $serviciosProductos->traerProveedores();
 
 ?>
+
 
 <!DOCTYPE HTML>
 <html>
@@ -25,7 +24,6 @@ $resProveedores = $serviciosProductos->traerProveedoresPorId($id);;
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Gestión de Cancha: La Caldera del Diablo</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 
 
 <link href="../../css/estiloDash.css" rel="stylesheet" type="text/css">
@@ -281,94 +279,72 @@ $resProveedores = $serviciosProductos->traerProveedoresPorId($id);;
 
 <div id="ingoGral" style=" margin-left:240px; padding-top:20px;">
 
-
-
+	
     <div class="boxInfo">
         <div id="headBoxInfo">
-        	<p style="color: #fff; font-size:18px; height:16px;">Nuevo Proveedor</p>
+        	<p style="color: #fff; font-size:18px; height:16px;">Proveedores Cargados</p>
         </div>
     	<div class="cuerpoBox">
-        <form class="form-horizontal" role="form">
-                	
-                <!--proveedor,direccion, telefono, cuit, nombre -->
-                
-                	<div class="form-group">
-                    	<label for="proveedor" class="col-lg-3 control-label" style="text-align:left">Proveedor</label>
-                        <div class="col-lg-5">
-                        	<input type="text" value="<?php echo mysql_result($resProveedores,0,'proveedor'); ?>" class="form-control" id="proveedor" name="proveedor" placeholder="Ingrese el Proveedor..." required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                    	<label for="direccion" class="col-lg-3 control-label" style="text-align:left">Dirección</label>
-                        <div class="col-lg-5">
-                        	<input type="text" value="<?php echo mysql_result($resProveedores,0,'direccion'); ?>" class="form-control" id="direccion" name="direccion" placeholder="Ingrese el Dirección..." required>
-                        </div>
-                    </div>
-                    
-                    
-                    <div class="form-group">
-                    	<label for="nombre" class="col-lg-3 control-label" style="text-align:left">Nombre</label>
-                        <div class="col-lg-5">
-                        	<input type="text" value="<?php echo mysql_result($resProveedores,0,'nombre'); ?>" class="form-control" id="nombre" name="nombre" placeholder="Ingrese el Nombre..." required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                    	<label for="telefono" class="col-lg-3 control-label" style="text-align:left">Teléfono</label>
-                        <div class="col-lg-5">
-                        	<input type="text" value="<?php echo mysql_result($resProveedores,0,'telefono'); ?>" class="form-control" id="telefono" name="telefono" placeholder="Ingrese el Teléfono..." required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                    	<label for="cuit" class="col-lg-3 control-label" style="text-align:left">Cuit</label>
-                        <div class="col-lg-5">
-                        	<input type="text" value="<?php echo mysql_result($resProveedores,0,'cuit'); ?>" class="form-control" id="cuit" name="cuit" placeholder="Ingrese el Cuit..." required>
-                        </div>
-                    </div>
-                    
-                    
-                	<div class="form-group">
-                    	<label for="eamil" class="col-lg-3 control-label" style="text-align:left">E-Mail</label>
-                        <div class="col-lg-5">
-                        	<input type="email" value="<?php echo mysql_result($resProveedores,0,'email'); ?>" class="form-control" id="email" name="email" placeholder="Ingrese el E-Mail..." required>
-                        </div>
-                    </div>
-                
-                    
-                    
-                    <ul class="list-inline">
-                    	<li>
-                    		<button type="button" class="btn btn-warning" id="modificar" style="margin-left:0px;">Modificar</button>
-                        </li>
-                        <li>
-                        	<button type="button" class="btn btn-danger varborrar" id="<?php echo $id; ?>" style="margin-left:0px;">Eliminar</button>
-                        </li>
-                        <li>
- 							<button type="button" class="btn btn-default volver" style="margin-left:0px;">Volver</button>                       
-                        </li>
-   
-                    </ul>
-                    <div id="load">
-                    
-                    </div>
-                    <div class="alert">
-                    
-                    </div>
-                    <input type="hidden" id="accion" name="accion" value="modificarProveedores"/>
-                    <input type="hidden" id="id" name="id" value="<?php echo $id; ?>"/>
-                </form>
-                
-                <br>
-                <div id="error">
-                
-                </div>
+        <button type="button" class="btn btn-primary nuevo" style="margin-left:0px;">Nuevo Proveedor</button>
+        	<table class="table table-striped">
+            	<thead>
+                	<tr>
+                    	<th>Proveedor</th>
+                        <th>Dirección</th>
+                        <th>Teléfono</th>
+                        <th>Cuit</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <!--proveedor,direccion, telefono, cuit, nombre, email -->
+                	<?php
+						if (mysql_num_rows($resProveedores)>0) {
+							while ($row = mysql_fetch_array($resProveedores)) {
+					?>
+                    	<tr>
+                        	<td><?php echo utf8_encode($row['proveedor']); ?></td>
+                            <td><?php echo utf8_encode($row['direccion']); ?></td>
+                            <td><?php echo $row['telefono']; ?></td>
+                            <td><?php echo $row['cuit']; ?></td>
+                            <td><?php echo utf8_encode($row['nombre']); ?></td>
+                            <td><?php echo utf8_encode($row['email']); ?></td>
+                            <td>
+                            		<div class="btn-group">
+										<button class="btn btn-success" type="button">Acciones</button>
+										
+										<button class="btn btn-success dropdown-toggle" data-toggle="dropdown" type="button">
+										<span class="caret"></span>
+										<span class="sr-only">Toggle Dropdown</span>
+										</button>
+										
+										<ul class="dropdown-menu" role="menu">
+											<li>
+											<a href="javascript:void(0)" class="varmodificar" id="<?php echo $row['idproveedor']; ?>">Modificar</a>
+											</li>
+
+											<li>
+											<a href="javascript:void(0)" class="varborrar" id="<?php echo $row['idproveedor']; ?>">Borrar</a>
+											</li>
+
+										</ul>
+									</div>
+                             </td>
+                        </tr>
+                    <?php } ?>
+                    <?php } else { ?>
+                    	<h3>No hay proveedores cargados.</h3>
+                    <?php } ?>
+                </tbody>
+            </table>
+            <div style="height:50px;">
+            
+            </div>
+            
         </div>
     </div>
-
-    
-    
 
 </div>
 
@@ -384,21 +360,32 @@ $resProveedores = $serviciosProductos->traerProveedoresPorId($id);;
 <script type="text/javascript">
 $(document).ready(function(){
 	
+	$('.nuevo').click(function(event){
+			url = "index.php";
+			$(location).attr('href',url);
+	});//fin del boton nuevo
+	
 	$('.varborrar').click(function(event){
-			  usersid =  $(this).attr("id");
-			  if (!isNaN(usersid)) {
-				$("#idEliminar").val(usersid);
-				$("#dialog2").dialog("open");
-				
-			  } else {
-				alert("Error, vuelva a realizar la acción.");	
-			  }
+		  usersid =  $(this).attr("id");
+		  if (!isNaN(usersid)) {
+			$("#idEliminar").val(usersid);
+			$("#dialog2").dialog("open");
+			//url = "../clienteseleccionado/index.php?idcliente=" + usersid;
+			//$(location).attr('href',url);
+		  } else {
+			alert("Error, vuelva a realizar la acción.");	
+		  }
 	});//fin del boton eliminar
 	
-	$('.volver').click(function(event){
-				url = "../proveedores/index.php";
-				$(location).attr('href',url);
-	});//fin del boton eliminar
+	$('.varmodificar').click(function(event){
+		  usersid =  $(this).attr("id");
+		  if (!isNaN(usersid)) {
+			url = "modificar.php?id=" + usersid;
+			$(location).attr('href',url);
+		  } else {
+			alert("Error, vuelva a realizar la acción.");	
+		  }
+	});//fin del boton modificar
 
 	$( "#dialog2" ).dialog({
 		 	
@@ -437,92 +424,13 @@ $(document).ready(function(){
 		 
 		 
 	 		}); //fin del dialogo para eliminar
-
-	$("#proveedor").click(function(event) {
-		$("#proveedor").removeClass("alert-danger");
-		$("#proveedor").attr('value','');
-		$("#proveedor").attr('placeholder','Ingrese el Proveedor...');
-    });
-
-	$("#proveedor").change(function(event) {
-		$("#proveedor").removeClass("alert-danger");
-		$("#proveedor").attr('placeholder','Ingrese el Proveedor');
-	});
-	
-	function validador(){
-
-			$error = "";
-
-			
-			if ($("#proveedor").val() == "") {
-				$error = "Es obligatorio el campo proveedor.";
-				$("#proveedor").addClass("alert-danger");
-				$("#proveedor").attr('placeholder',$error);
-			}
-
-
-			return $error;
-    }
-	
-	//al enviar el formulario
-    $('#cargar').click(function(){
-		if (validador() == "")
-        {
-			//información del formulario
-			var formData = new FormData($(".formulario")[0]);
-			var message = "";
-			//hacemos la petición ajax  
-			$.ajax({
-				url: '../../ajax/ajax.php',  
-				type: 'POST',
-				// Form data
-				//datos del formulario
-				data: formData,
-				//necesario para subir archivos via ajax
-				cache: false,
-				contentType: false,
-				processData: false,
-				//mientras enviamos el archivo
-				beforeSend: function(){
-					$("#load").html('<img src="../../imagenes/load13.gif" width="50" height="50" />');       
-				},
-				//una vez finalizado correctamente
-				success: function(data){
-
-					if (data != '') {
-                                            $(".alert").removeClass("alert-danger");
-											$(".alert").removeClass("alert-info");
-                                            $(".alert").addClass("alert-success");
-                                            $(".alert").html('<strong>Ok!</strong> Se cargo exitosamente el <strong>Proveedor</strong>. ');
-											$(".alert").delay(3000).queue(function(){
-												/*aca lo que quiero hacer 
-												  después de los 2 segundos de retraso*/
-												$(this).dequeue(); //continúo con el siguiente ítem en la cola
-												
-											});
-											$("#load").html('');
-											url = "index.php";
-											$(location).attr('href',url);
-                                            
-											
-                                        } else {
-                                        	$(".alert").removeClass("alert-danger");
-                                            $(".alert").addClass("alert-danger");
-                                            $(".alert").html('<strong>Error!</strong> '+data);
-                                            $("#load").html('');
-                                        }
-				},
-				//si ha ocurrido un error
-				error: function(){
-					$(".alert").html('<strong>Error!</strong> Actualice la pagina');
-                    $("#load").html('');
-				}
-			});
-		}
-    });
-
-});//fin del document ready
+});
 </script>
+
+
 <?php } ?>
+
+	
+	
 </body>
 </html>
