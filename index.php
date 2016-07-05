@@ -111,7 +111,6 @@ $servicios = new Servicios();
         						$.ajax({
                                 data:  {email:		$("#email").val(),
 										pass:		$("#pass").val(),
-										idempresa:	$('#idempresa').val(),
 										accion:		'login'},
                                 url:   'ajax/ajax.php',
                                 type:  'post',
