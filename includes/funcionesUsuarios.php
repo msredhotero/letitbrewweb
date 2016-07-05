@@ -20,7 +20,7 @@ function GUID()
 }
 
 
-function login($usuario,$pass,$torneo) {
+function login($usuario,$pass) {
 	
 	$sqlusu = "select * from dbusuarios where email = '".$usuario."'";
 

@@ -98,6 +98,66 @@ return $res;
 }
 
 
+function traerVentasPorDia() {
+$sql = "select idventa,tc.tipocerveza,cantidad,cantidad * precioventa,usuario,fechaventa,cancelado,v.observaciones 
+			from dbventas v 
+			inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
+			where	v.fechaventa >= concat(cast(curdate() as CHAR),' ','14:00:00')
+					and v.fechaventa <= DATE_ADD(cast(concat(cast(curdate() as CHAR),' ','14:00:00') as date), interval 28 hour) 
+			order by 1";
+$res = $this->query($sql,0);
+return $res;
+}
+
+function traerVentasPorFechas() {
+$sql = "select idventa,reftipocerveza,precioventa,cantidad,usuario,fechaventa,cancelado,observaciones from dbventas order by 1";
+$res = $this->query($sql,0);
+return $res;
+}
+
+function traerVentasPorUsuario() {
+$sql = "select idventa,reftipocerveza,precioventa,cantidad,usuario,fechaventa,cancelado,observaciones from dbventas order by 1";
+$res = $this->query($sql,0);
+return $res;
+}
+
+
+function traerVentasPorTipoCerveza() {
+$sql = "select idventa,reftipocerveza,precioventa,cantidad,usuario,fechaventa,cancelado,observaciones from dbventas order by 1";
+$res = $this->query($sql,0);
+return $res;
+}
+
+function traerVentasPorDiaTipoCerveza($refTipoCerveza) {
+$sql = "select idventa,tc.tipocerveza,cantidad,cantidad * precioventa,usuario,fechaventa,cancelado,v.observaciones 
+			from dbventas v 
+			inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
+			where	v.fechaventa >= concat(cast(curdate() as CHAR),' ','14:00:00')
+					and v.fechaventa <= DATE_ADD(cast(concat(cast(curdate() as CHAR),' ','14:00:00') as date), interval 28 hour) 
+					and v.reftipocerveza = ".$refTipoCerveza."
+			order by 1";
+$res = $this->query($sql,0);
+return $res;
+}
+
+
+function traerVentasPorDiaTipoCervezaLitros($refTipoCerveza) {
+	$sql = "select sum(cantidad) as litros
+				from dbventas v 
+				inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
+				where	v.fechaventa >= concat(cast(curdate() as CHAR),' ','14:00:00')
+						and v.fechaventa <= DATE_ADD(cast(concat(cast(curdate() as CHAR),' ','14:00:00') as date), interval 28 hour) 
+						and v.reftipocerveza = ".$refTipoCerveza."
+				";
+	$res = $this->query($sql,0);
+	if (mysql_num_rows($res)>0) {
+		return mysql_result($res,0,0);
+	}
+	
+	return 0;
+}
+
+
 function traerVentasPorId($id) {
 $sql = "select idventa,reftipocerveza,precioventa,cantidad,usuario,fechaventa,cancelado,observaciones from dbventas where idventa =".$id;
 $res = $this->query($sql,0);

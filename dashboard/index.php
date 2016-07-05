@@ -165,7 +165,9 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
 	<?php
 		
 		while ($rowC = mysql_fetch_array($resTiposCervezas)) { 
-		
+			$resVTC = $serviciosReferencias->traerVentasPorDiaTipoCerveza($rowC[0]);
+			$cantVentas = mysql_num_rows($resVTC);
+			$cantLitros = $serviciosReferencias->traerVentasPorDiaTipoCervezaLitros($rowC[0]);
 	?>
 	<div class="col-md-3 col-xs-6" style="margin-bottom:10px;">
     	<div class="contCerveza1">	
@@ -195,7 +197,7 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
                 
             </div>
             <div align="center">
-                <h4>Tipo Cerveza: <?php echo $rowC[1]; ?> <span class="badge" id="<?php echo 'barge'.$rowC[0]; ?>">0</span></h4>
+                <h4>Tipo Cerveza: <?php echo $rowC[1]; ?> <span class="badge" id="<?php echo 'badge'.$rowC[0]; ?>"><?php echo $cantVentas; ?></span></h4>
                 <h4>Precio: $<?php echo $rowC['precio']; ?></h4>
                 <h4>IBU: <?php echo $rowC['ibu']; ?></h4>
                 <h4>Alcohol: <?php echo $rowC['alcohol']; ?></h4>            
@@ -222,6 +224,14 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
                 
             </div>
             
+            <div class='row' style="margin-left:25px; margin-right:25px;">
+                <div class='alert error<?php echo $rowC[0]; ?>'>
+                
+                </div>
+                <div id='load'>
+                
+                </div>
+            </div>
 
             <div class="col-md-12" style="margin-top:6px; margin-bottom:5px; text-align:center;">
 
@@ -262,210 +272,47 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
 <script type="text/javascript">
 $(document).ready(function(){
 	
-	$('.abrir').click(function() {
+						
+	function insertarVenta(precio, cantidad, tipocerveza, label) {
+		$.ajax({
+				data:  {precioventa : precio,
+						cantidad: cantidad,
+						reftipocerveza : tipocerveza,
+						usuario: '<?php echo $_SESSION['nombre_predio']; ?>',
+						accion: 'insertarVentas'},
+				url:   '../ajax/ajax.php',
+				type:  'post',
+				beforeSend: function () {
+						
+				},
+				success:  function (response) {
+					
+					if (!isNaN(response)) {
+						$('#badge'+label).hide('slow');
+						$('#badge'+label).show(65);
+						$('#badge'+label).hide('slow');
+						$('#badge'+label).show(65);
+						$('#badge'+label).html(response);
+						
+					} else {
+						$('.error'+label).html(response);
+						
+					}
+						
+				}
+		});
+	}
+	
+	
+	$('.cargar').click(function(){
+		tipocerveza =  $(this).attr("id");
+		if (!isNaN(tipocerveza)) {
+			insertarVenta($('#precio'+tipocerveza).val(), $('#cantidad'+tipocerveza).val(), tipocerveza,tipocerveza);
 		
-		if ($('.abrir').text() == '(Abrir)') {
-			$('.filt').show( "slow" );
-			$('.abrir').text('(Cerrar)');
-			$('.abrir').removeClass('glyphicon glyphicon-plus');
-			$('.abrir').addClass('glyphicon glyphicon-minus');
 		} else {
-			$('.filt').slideToggle( "slow" );
-			$('.abrir').text('(Abrir)');
-			$('.abrir').addClass('glyphicon glyphicon-plus');
-			$('.abrir').removeClass('glyphicon glyphicon-minus');
-
+		alert("Error, vuelva a realizar la acción.");	
 		}
-	});
-	
-	$('.abrir').click();
-	
-	$('.abrir').click(function() {
-		$('.filt').show();
-	});
-	
-	function traerInmuebles() {
-		$.ajax({
-				data:  {refurbanizacion : $('#refurbanizacion').val(),
-						reftipovivienda : $('#reftipovivienda').val(),
-						refuso : $('#refuso').val(),
-						refsituacioninmueble : $('#refsituacioninmueble').val(),
-						dormitorios : $('#dormitorios').val(),
-						banios : $('#banios').val(),
-						encontruccion : $('#encontruccion').val(),
-						mts2 : $('#mts2').val(),
-						anioconstruccion : $('#anioconstruccion').val(),
-						precioventapropietario : $('#precioventapropietario').val(),
-						nombrepropietario : $('#nombrepropietario').val(),
-						apellidopropietario : $('#apellidopropietario').val(),
-						fechacarga : $('#fechacarga').val(),
-						refusuario : $('#refusuario').val(),
-						refcomision : $('#refcomision').val(),
-						accion: 'Filtros'},
-				url:   '../ajax/ajax.php',
-				type:  'post',
-				beforeSend: function () {
-						
-				},
-				success:  function (response) {
-						$('.resultados').html(response);
-						
-				}
-		});
-	}
-	
-	
-	function traerOportunidades() {
-		$.ajax({
-				data:  {refurbanizacion : $('#refurbanizacion').val(),
-						reftipovivienda : $('#reftipovivienda').val(),
-						refuso : $('#refuso').val(),
-						refsituacioninmueble : $('#refsituacioninmueble').val(),
-						dormitorios : $('#dormitorios').val(),
-						banios : $('#banios').val(),
-						encontruccion : $('#encontruccion').val(),
-						mts2 : $('#mts2').val(),
-						anioconstruccion : $('#anioconstruccion').val(),
-						precioventapropietario : $('#precioventapropietario').val(),
-						nombrepropietario : $('#nombrepropietario').val(),
-						apellidopropietario : $('#apellidopropietario').val(),
-						fechacarga : $('#fechacarga').val(),
-						refusuario : $('#refusuario').val(),
-						refcomision : $('#refcomision').val(),
-						accion: 'Oportunidades'},
-				url:   '../ajax/ajax.php',
-				type:  'post',
-				beforeSend: function () {
-						
-				},
-				success:  function (response) {
-						$('.oportunidades').html(response);
-						
-				}
-		});
-	}
-	
-	function graficos() {
-	
-	  eval($('#code').text());
-	  prettyPrint();
-	}
-	
-	function graficosTV() {
-	
-	  eval($('#code2').text());
-	  prettyPrint();
-	}
-	
-	function graficosU() {
-	
-	  eval($('#code3').text());
-	  prettyPrint();
-	}
-	
-	function GraficoValoracion() {
-		$.ajax({
-				data:  {refurbanizacion : $('#refurbanizacion').val(),
-						reftipovivienda : $('#reftipovivienda').val(),
-						refuso : $('#refuso').val(),
-						refsituacioninmueble : $('#refsituacioninmueble').val(),
-						dormitorios : $('#dormitorios').val(),
-						banios : $('#banios').val(),
-						encontruccion : $('#encontruccion').val(),
-						mts2 : $('#mts2').val(),
-						anioconstruccion : $('#anioconstruccion').val(),
-						precioventapropietario : $('#precioventapropietario').val(),
-						nombrepropietario : $('#nombrepropietario').val(),
-						apellidopropietario : $('#apellidopropietario').val(),
-						fechacarga : $('#fechacarga').val(),
-						refusuario : $('#refusuario').val(),
-						refcomision : $('#refcomision').val(),
-						accion: 'graficosValoracion'},
-				url:   '../ajax/ajax.php',
-				type:  'post',
-				beforeSend: function () {
-						
-				},
-				success:  function (response) {
-						$('#code').html(response);
-						graficos();
-				}
-		});
-	}
-	
-	function GraficosTipoVivienda() {
-		$.ajax({
-				data:  {refurbanizacion : $('#refurbanizacion').val(),
-						reftipovivienda : $('#reftipovivienda').val(),
-						refuso : $('#refuso').val(),
-						refsituacioninmueble : $('#refsituacioninmueble').val(),
-						dormitorios : $('#dormitorios').val(),
-						banios : $('#banios').val(),
-						encontruccion : $('#encontruccion').val(),
-						mts2 : $('#mts2').val(),
-						anioconstruccion : $('#anioconstruccion').val(),
-						precioventapropietario : $('#precioventapropietario').val(),
-						nombrepropietario : $('#nombrepropietario').val(),
-						apellidopropietario : $('#apellidopropietario').val(),
-						fechacarga : $('#fechacarga').val(),
-						refusuario : $('#refusuario').val(),
-						refcomision : $('#refcomision').val(),
-						accion: 'graficosTipoVivienda'},
-				url:   '../ajax/ajax.php',
-				type:  'post',
-				beforeSend: function () {
-						
-				},
-				success:  function (response) {
-						$('#code2').html(response);
-						graficosTV();
-				}
-		});
-	}
-	
-	
-	function GraficosUsos() {
-		$.ajax({
-				data:  {refurbanizacion : $('#refurbanizacion').val(),
-						reftipovivienda : $('#reftipovivienda').val(),
-						refuso : $('#refuso').val(),
-						refsituacioninmueble : $('#refsituacioninmueble').val(),
-						dormitorios : $('#dormitorios').val(),
-						banios : $('#banios').val(),
-						encontruccion : $('#encontruccion').val(),
-						mts2 : $('#mts2').val(),
-						anioconstruccion : $('#anioconstruccion').val(),
-						precioventapropietario : $('#precioventapropietario').val(),
-						nombrepropietario : $('#nombrepropietario').val(),
-						apellidopropietario : $('#apellidopropietario').val(),
-						fechacarga : $('#fechacarga').val(),
-						refusuario : $('#refusuario').val(),
-						refcomision : $('#refcomision').val(),
-						accion: 'graficosUsos'},
-				url:   '../ajax/ajax.php',
-				type:  'post',
-				beforeSend: function () {
-						
-				},
-				success:  function (response) {
-						$('#code3').html(response);
-						graficosU();
-				}
-		});
-	}
-	
-	traerInmuebles();
-	traerOportunidades();
-	GraficoValoracion();
-	GraficosTipoVivienda();
-	GraficosUsos();
-	$('#buscar').click(function(e) {
-        
 		
-	});
-	
-	$('.actualizar').click(function() {
-		traerOportunidades();
 	});
 	
 	
