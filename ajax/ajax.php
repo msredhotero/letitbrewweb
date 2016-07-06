@@ -58,6 +58,12 @@ eliminarTipoCervezas($serviciosReferencias);
 break;
 
 /* Fin */
+
+/* PARA Estadisticas */
+case 'graficoTipoCervezas':
+graficoTipoCervezas($serviciosReferencias);
+break;
+/* Fin */
 }
 
 //////////////////////////Traer datos */////////////////////////////////////////////////////////////
@@ -104,7 +110,8 @@ echo 'Huvo un error al modificar datos';
 }
 function eliminarVentas($serviciosReferencias) {
 $id = $_POST['id'];
-$res = $serviciosReferencias->eliminarVentas($id);
+$observaciones = '';
+$res = $serviciosReferencias->eliminarVentas($id, $observaciones);
 echo $res;
 }
 
@@ -152,6 +159,22 @@ echo $res;
 
 /* Fin */ 
 
+
+/************* para las ESTADISTICAS **********/
+
+function graficoTipoCervezas($serviciosReferencias) {
+
+	
+	$where = '';
+	
+	$res = $serviciosReferencias->graficoTipoCervezas($where);
+	
+	echo $res;
+	
+}
+
+
+/*********** FIN  *****************************/
 
 ////////////////////////// FIN DE TRAER DATOS ////////////////////////////////////////////////////////////
 

@@ -84,7 +84,16 @@ return $res;
 }
 
 
-function eliminarVentas($id) {
+function eliminarVentas($id,$observaciones) {
+$sql = "update dbventas
+set
+cancelado = 1,observaciones = '".utf8_decode($observaciones)."'
+where idventa =".$id;
+$res = $this->query($sql,0);
+return $res;
+}
+
+function eliminarVentasDefinitivo($id) {
 $sql = "delete from dbventas where idventa =".$id;
 $res = $this->query($sql,0);
 return $res;
@@ -99,12 +108,18 @@ return $res;
 
 
 function traerVentasPorDia() {
-$sql = "select idventa,tc.tipocerveza,cantidad,cantidad * precioventa,usuario,fechaventa,cancelado,v.observaciones 
+if ((date('H') > 0) && (date('H') < 14)) {
+	$dia = 	'DATE_ADD(curdate(), interval -1 day)';
+} else {
+	$dia = 	'curdate()';
+	//$dia = 	'DATE_ADD(curdate(), interval -1 day)';
+}
+$sql = "select idventa,tc.tipocerveza,cantidad,cantidad * precioventa,usuario,fechaventa,(case when cancelado=0 then 'No' else 'Si' end) as cancelado ,v.observaciones 
 			from dbventas v 
 			inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
-			where	v.fechaventa >= concat(cast(curdate() as CHAR),' ','14:00:00')
-					and v.fechaventa <= DATE_ADD(cast(concat(cast(curdate() as CHAR),' ','14:00:00') as date), interval 28 hour) 
-			order by 1";
+			where	v.fechaventa >= concat(cast(".$dia." as CHAR),' ','14:00:00')
+					and v.fechaventa <= DATE_ADD(cast(concat(cast(".$dia." as CHAR),' ','14:00:00') as date), interval 28 hour) 
+			order by fechaventa DESC";
 $res = $this->query($sql,0);
 return $res;
 }
@@ -129,11 +144,18 @@ return $res;
 }
 
 function traerVentasPorDiaTipoCerveza($refTipoCerveza) {
+	if ((date('H') > 0) && (date('H') < 14)) {
+	$dia = 	'DATE_ADD(curdate(), interval -1 day)';
+	} else {
+		$dia = 	'curdate()';
+		//$dia = 	'DATE_ADD(curdate(), interval -1 day)';
+	}
+
 $sql = "select idventa,tc.tipocerveza,cantidad,cantidad * precioventa,usuario,fechaventa,cancelado,v.observaciones 
 			from dbventas v 
 			inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
-			where	v.fechaventa >= concat(cast(curdate() as CHAR),' ','14:00:00')
-					and v.fechaventa <= DATE_ADD(cast(concat(cast(curdate() as CHAR),' ','14:00:00') as date), interval 28 hour) 
+			where	v.fechaventa >= concat(cast(".$dia." as CHAR),' ','14:00:00')
+					and v.fechaventa <= DATE_ADD(cast(concat(cast(".$dia." as CHAR),' ','14:00:00') as date), interval 28 hour) 
 					and v.reftipocerveza = ".$refTipoCerveza."
 			order by 1";
 $res = $this->query($sql,0);
@@ -142,11 +164,18 @@ return $res;
 
 
 function traerVentasPorDiaTipoCervezaLitros($refTipoCerveza) {
-	$sql = "select sum(cantidad) as litros
+	if ((date('H') > 0) && (date('H') < 14)) {
+	$dia = 	'DATE_ADD(curdate(), interval -1 day)';
+	} else {
+		$dia = 	'curdate()';
+		//$dia = 	'DATE_ADD(curdate(), interval -1 day)';
+	}
+	
+	$sql = "select coalesce(sum(cantidad),0) as litros
 				from dbventas v 
 				inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
-				where	v.fechaventa >= concat(cast(curdate() as CHAR),' ','14:00:00')
-						and v.fechaventa <= DATE_ADD(cast(concat(cast(curdate() as CHAR),' ','14:00:00') as date), interval 28 hour) 
+				where	v.fechaventa >= concat(cast(".$dia." as CHAR),' ','14:00:00')
+						and v.fechaventa <= DATE_ADD(cast(concat(cast(".$dia." as CHAR),' ','14:00:00') as date), interval 28 hour) 
 						and v.reftipocerveza = ".$refTipoCerveza."
 				";
 	$res = $this->query($sql,0);
@@ -154,7 +183,7 @@ function traerVentasPorDiaTipoCervezaLitros($refTipoCerveza) {
 		return mysql_result($res,0,0);
 	}
 	
-	return 0;
+	return '0';
 }
 
 
@@ -166,6 +195,76 @@ return $res;
 
 /* Fin */
 
+
+
+/* para las ESTADISTICAS */
+
+function graficoTipoCervezas($where) {
+if ($where != '') {
+		$sql = "select
+					tc.idtipocerveza, tc.tipocerveza, coalesce(sum(v.cantidad),0)
+				from dbventas v 
+					inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
+				group by tc.idtipocerveza, tc.tipocerveza
+				order by tc.tipocerveza
+		";
+		
+		
+		$sqlT = "select
+			sum(v.cantidad)
+		
+		from dbventas v 
+					inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
+				";
+
+		
+	} else {
+		$sql = "select
+					tc.idtipocerveza, tc.tipocerveza, coalesce(sum(v.cantidad),0)
+				from dbventas v 
+					inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
+				group by tc.idtipocerveza, tc.tipocerveza
+				order by tc.tipocerveza
+		";
+		
+		
+		$sqlT = "select
+			sum(v.cantidad)
+		
+		from dbventas v 
+					inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
+				";
+	}
+	
+	$resT = mysql_result($this->query($sqlT,0),0,0);
+	$resR = $this->query($sql,0);
+	
+	$cad	= "Morris.Donut({
+              element: 'graph',
+              data: [";
+	$cadValue = '';
+	if ($resT > 0) {
+		while ($row = mysql_fetch_array($resR)) {
+			$cadValue .= "{value: ".number_format(((100 * $row[2])	/ $resT),2).", label: '".$row[1]."'},";
+		}
+	}
+	
+/*
+                {value: ".$porcentajeOportunidad.", label: 'Oportunidad'},
+                {value: ".$porcentajeNormal.", label: 'Normal'},
+                {value: ".$porcentajeCaro.", label: 'Caro'},
+                {value: ".$porcentajeFueraMercado.", label: 'Fuera del Mercado'}*/
+	$cad .= substr($cadValue,0,strlen($cadValue)-1);
+    $cad .=          "],
+              formatter: function (x) { return x + '%'}
+            }).on('click', function(i, row){
+              console.log(i, row);
+            });";
+			
+	return $cad;	
+}
+
+/* FIN */
 /* Fin */
 
 function query($sql,$accion) {

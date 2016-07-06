@@ -45,7 +45,7 @@ $cabeceras 		= "	<th>Tipo Cerveza</th>
 //////////////////////////////////////////////  FIN de los opciones //////////////////////////
 
 
-$lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosReferencias->traerVentasPorDia(),6);
+$lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosReferencias->traerVentasPorDia(),99);
 ?>
 
 <!DOCTYPE HTML>
@@ -168,10 +168,11 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
 			$resVTC = $serviciosReferencias->traerVentasPorDiaTipoCerveza($rowC[0]);
 			$cantVentas = mysql_num_rows($resVTC);
 			$cantLitros = $serviciosReferencias->traerVentasPorDiaTipoCervezaLitros($rowC[0]);
+			
 	?>
 	<div class="col-md-3 col-xs-6" style="margin-bottom:10px;">
     	<div class="contCerveza1">	
-            <div style="float:left; height:80px; display:block;">
+            <div style="float:left; height:100px; display:block;">
             	<?php
 					switch ($rowC['color']) {
 						case 'Rubia':
@@ -197,10 +198,10 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
                 
             </div>
             <div align="center">
-                <h4>Tipo Cerveza: <?php echo $rowC[1]; ?> <span class="badge" id="<?php echo 'badge'.$rowC[0]; ?>"><?php echo $cantVentas; ?></span></h4>
-                <h4>Precio: $<?php echo $rowC['precio']; ?></h4>
-                <h4>IBU: <?php echo $rowC['ibu']; ?></h4>
-                <h4>Alcohol: <?php echo $rowC['alcohol']; ?></h4>            
+                <h5>Cerveza: <span style="font-weight:bold; font-size:1.3em;"><?php echo $rowC[1]; ?></span> <span style=" background-color: #0F3;" class="badge" id="<?php echo 'badge'.$rowC[0]; ?>"><?php echo $cantVentas; ?></span><span class="badge" style=" background-color: #009;" id="<?php echo 'badgeL'.$rowC[0]; ?>"><?php echo $cantLitros; ?></span></h5>
+                <h5>Precio: $<?php echo $rowC['precio']; ?></h5>
+                <h5>IBU: <?php echo $rowC['ibu']; ?></h5>
+                <h5>Alcohol: <?php echo $rowC['alcohol']; ?></h5>            
             </div>
             <p>Obs.: <?php echo $rowC['observaciones']; ?></p>
         </div>
@@ -224,19 +225,21 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
                 
             </div>
             
-            <div class='row' style="margin-left:25px; margin-right:25px;">
-                <div class='alert error<?php echo $rowC[0]; ?>'>
-                
+            
+
+            <div class="form-group col-md-12" style="margin-top:6px; margin-bottom:5px; text-align:center;">
+
+                <button type="button" class="btn btn-primary cargar" id="<?php echo $rowC[0]; ?>" style="margin-left:0px;">Cargar Venta</button>
+
+            </div>
+            
+            <div class='form-group col-md-12' style="height:50px; display:block;">
+                <div class='alert error<?php echo $rowC[0]; ?> alert-dismissable'>
+                	<button type="button" class="close" data-dismiss="alert">&times;</button>
                 </div>
                 <div id='load'>
                 
                 </div>
-            </div>
-
-            <div class="col-md-12" style="margin-top:6px; margin-bottom:5px; text-align:center;">
-
-                <button type="button" class="btn btn-primary cargar" id="<?php echo $rowC[0]; ?>" style="margin-left:0px;">Cargar Venta</button>
-
             </div>
 			
     </div>    
@@ -267,11 +270,44 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
 
 	
 
-  
+<div id="dialog2" title="Cancelar Venta">
+    	<p>
+        	<span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>
+            ¿Esta seguro que desea cancelar la venta?.<span id="proveedorEli"></span>
+        </p>
+        <p><strong>Importante: </strong>Si cancelara la venta pero no se borrara.</p>
+        <input type="hidden" value="" id="idEliminar" name="idEliminar">
+</div>
+<script type="text/javascript" src="../js/jquery.dataTables.min.js"></script>
+<script src="../bootstrap/js/dataTables.bootstrap.js"></script>  
 
 <script type="text/javascript">
 $(document).ready(function(){
-	
+	$('#example').dataTable({
+		"language": {
+			"emptyTable":     "No hay datos cargados",
+			"info":           "Mostrar _START_ hasta _END_ del total de _TOTAL_ filas",
+			"infoEmpty":      "Mostrar 0 hasta 0 del total de 0 filas",
+			"infoFiltered":   "(filtrados del total de _MAX_ filas)",
+			"infoPostFix":    "",
+			"thousands":      ",",
+			"lengthMenu":     "Mostrar _MENU_ filas",
+			"loadingRecords": "Cargando...",
+			"processing":     "Procesando...",
+			"search":         "Buscar:",
+			"zeroRecords":    "No se encontraron resultados",
+			"paginate": {
+				"first":      "Primero",
+				"last":       "Ultimo",
+				"next":       "Siguiente",
+				"previous":   "Anterior"
+			},
+			"aria": {
+				"sortAscending":  ": activate to sort column ascending",
+				"sortDescending": ": activate to sort column descending"
+			}
+		  }
+	} );
 						
 	function insertarVenta(precio, cantidad, tipocerveza, label) {
 		$.ajax({
@@ -288,20 +324,25 @@ $(document).ready(function(){
 				success:  function (response) {
 					
 					if (!isNaN(response)) {
-						$('#badge'+label).hide('slow');
-						$('#badge'+label).show(65);
-						$('#badge'+label).hide('slow');
-						$('#badge'+label).show(65);
+
 						$('#badge'+label).html(response);
-						
+
+						$('#badgeL'+label).html(parseInt($('#badgeL'+label).html()) + parseInt(cantidad));
+						$('.error'+label).removeClass("alert-danger");
+						$('.error'+label).removeClass("alert-info");
+                        $('.error'+label).addClass("alert-success");
+                        $('.error'+label).append('<strong>Ok!</strong> Se cargo correctamente</strong>. ');
 					} else {
-						$('.error'+label).html(response);
-						
+					
+						$('.error'+label).removeClass("alert-danger");
+                        $('.error'+label).addClass("alert-danger");
+                        $('.error'+label).append('<strong>Error!</strong> '+response);
 					}
 						
 				}
 		});
 	}
+	
 	
 	
 	$('.cargar').click(function(){
@@ -315,7 +356,58 @@ $(document).ready(function(){
 		
 	});
 	
+	$("#example").on("click",'.varborrar', function(){
+		  usersid =  $(this).attr("id");
+		  if (!isNaN(usersid)) {
+			$("#idEliminar").val(usersid);
+			$("#dialog2").dialog("open");
+
+			
+			//url = "../clienteseleccionado/index.php?idcliente=" + usersid;
+			//$(location).attr('href',url);
+		  } else {
+			alert("Error, vuelva a realizar la acción.");	
+		  }
+	});//fin del boton eliminar
 	
+	
+	$( "#dialog2" ).dialog({
+		 	
+			    autoOpen: false,
+			 	resizable: false,
+				width:600,
+				height:240,
+				modal: true,
+				buttons: {
+				    "Cancelar": function() {
+	
+						$.ajax({
+									data:  {id: $('#idEliminar').val(), accion: 'eliminarVentas'},
+									url:   '../ajax/ajax.php',
+									type:  'post',
+									beforeSend: function () {
+											
+									},
+									success:  function (response) {
+											url = "index.php";
+											$(location).attr('href',url);
+											
+									}
+							});
+						$( this ).dialog( "close" );
+						$( this ).dialog( "close" );
+							$('html, body').animate({
+	           					scrollTop: '1000px'
+	       					},
+	       					1500);
+				    },
+				    Salir: function() {
+						$( this ).dialog( "close" );
+				    }
+				}
+		 
+		 
+	 		}); //fin del dialogo para eliminar
 	
 	
 });

@@ -13,9 +13,10 @@ class Servicios {
 	function camposTablaView($cabeceras,$datos,$cantidad) {
 		$cadView = '';
 		$cadRows = '';
+		$colorTR = '';
 		switch ($cantidad) {
 			case 99:
-				$cantidad = 8;
+				$cantidad = 6;
 				$classMod = '';
 				$classEli = 'varborrar';
 				$idresultados = "resultados";
@@ -49,15 +50,23 @@ class Servicios {
 		}*/
 		while ($row = mysql_fetch_array($datos)) {
 			$cadsubRows = '';
+			/*
+			if ($classMod == '') {
+			if ($row['cancelado'] == 'Si') {
+				$colorTR = 'style="background-color:#FF3;"';
+			} else {
+				$colorTR = '';
+			}
+			}*/
 			$cadRows = $cadRows.'
 			
 					<tr class="'.$row[0].'">
                         	';
 			
-			
+			//style="height:60px;overflow:auto;" por si meto el observaciones
 			for ($i=1;$i<=$cantidad;$i++) {
 				
-				$cadsubRows = $cadsubRows.'<td><div style="height:60px;overflow:auto;">'.$row[$i].'</div></td>';	
+				$cadsubRows = $cadsubRows.'<td '.$colorTR.'><div>'.$row[$i].'</div></td>';	
 			}
 			
 			
@@ -105,7 +114,7 @@ class Servicios {
 										<ul class="dropdown-menu" role="menu">
 										
 											<li>
-											<a href="javascript:void(0)" class="'.$classEli.'" id="'.$row[0].'">Borrar</a>
+											<a href="javascript:void(0)" class="'.$classEli.'" data-toggle="modal" data-target="#myModal" id="'.$row[0].'">Cancelar</a>
 											</li>
 											
 										</ul>
