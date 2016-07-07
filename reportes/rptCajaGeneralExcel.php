@@ -29,7 +29,7 @@ $fecha = date('Y-m-d');
 //$header = array("Hora", "Cancha 1", "Cancha 2", "Cancha 3");
 
 if ($_GET['id'] != 0) {
-	$id				=	$_GET['usuario'];	
+	$id				=	$_GET['id'];	
 	$resUsuario		=	$serviciosUsuarios->traerUsuarioId($id);
 	$usuario		=	mysql_result($resUsuario,0,'nombrecompleto');
 } else {
@@ -104,13 +104,18 @@ $objPHPExcel->setActiveSheetIndex(0)
 
 $i = 5; //Numero de fila donde se va a comenzar a rellenar
  while ($fila = mysql_fetch_array($datos)) {
-     $objPHPExcel->setActiveSheetIndex(0)
+     if ($fila[6] == 'Si') {
+		$objPHPExcel->getActiveSheet()->getStyle('A'.$i.':F'.$i)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+        $objPHPExcel->getActiveSheet()->getStyle('A'.$i.':F'.$i)->getFill()->getStartColor()->setARGB('F7FE2E'); 
+	 }
+	 $objPHPExcel->setActiveSheetIndex(0)
          ->setCellValue('A'.$i, utf8_encode($fila[1]))
          ->setCellValue('B'.$i, utf8_encode($fila[2]))
          ->setCellValue('C'.$i, utf8_encode($fila[3]))
          ->setCellValue('D'.$i, $fila[4])
 		 ->setCellValue('E'.$i, $fila[5])
          ->setCellValue('F'.$i, $fila[6]);
+	
      $i++;
  }
 

@@ -20,7 +20,7 @@ require('fpdf.php');
 //$header = array("Hora", "Cancha 1", "Cancha 2", "Cancha 3");
 
 if ($_GET['id'] != 0) {
-	$id				=	$_GET['usuario'];	
+	$id				=	$_GET['id'];	
 	$resUsuario		=	$serviciosUsuarios->traerUsuarioId($id);
 	$usuario		=	mysql_result($resUsuario,0,'nombrecompleto');
 } else {
@@ -89,12 +89,12 @@ function ingresosFacturacion($header, $data, &$TotalIngresos)
 	$this->SetFont('Arial','',9);
     while ($row = mysql_fetch_array($data))
     {
-		if ($row['cancelado'] == 0) {
+		if ($row['cancelado'] == 'No') {
 		$total = $total + $row['monto'];
-		$totalcant += 1; 
 		$totalLitros = $totalLitros + $row['cantidad'];
 		}
-
+		$totalcant += 1;
+		
         $this->Cell($w[0],5,$row[1],'LR',0,'L',$fill);
 		$this->Cell($w[1],5,$row[2],'LR',0,'C',$fill);
         $this->Cell($w[2],5,'$'.number_format($row[3],2,',','.'),'LR',0,'R',$fill);

@@ -74,6 +74,7 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
     
 	<!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/jquery.datetimepicker.css"/>
 	<link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
     <!-- Latest compiled and minified JavaScript -->
     <script src="../bootstrap/js/bootstrap.min.js"></script>
@@ -159,16 +160,22 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
 </nav> 
 
 
-<div class="row" style="padding:2%;">
+
 <form class="form-inline formulario" role="form">
 
 	<?php
-		
+		echo '<div class="row">';
+		$i=0;
+		$primero = 1;
 		while ($rowC = mysql_fetch_array($resTiposCervezas)) { 
 			$resVTC = $serviciosReferencias->traerVentasPorDiaTipoCerveza($rowC[0]);
 			$cantVentas = mysql_num_rows($resVTC);
 			$cantLitros = $serviciosReferencias->traerVentasPorDiaTipoCervezaLitros($rowC[0]);
 			
+			if ((($i % 4) == 0) && ($primero != 1)) {
+				echo '</div>';
+				echo '<div class="row">';	
+			}
 	?>
 	<div class="col-md-3 col-xs-6" style="margin-bottom:10px;">
     	<div class="contCerveza1">	
@@ -205,6 +212,7 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
             </div>
             <p>Obs.: <?php echo $rowC['observaciones']; ?></p>
         </div>
+        
         <div class="contCerveza2">	
         	<div class="form-group col-md-6 col-xs-10 col-sm-6">
                 <label for="precio" class="control-label" style="text-align:left">Precio</label>
@@ -242,19 +250,23 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
                 </div>
             </div>
 			
-    </div>    
+    	</div>   
     </div>
     
     <?php
-	
+		
+			if (($i%4 ==0) || ($primero == 1)) {
+					
+				$primero = 0;
+			}
+			$i += 1;
 		}
-	
+		echo '</div>';
 	?>
 
 </form>
 
-	
-</div>
+
 
 <div class="row" style="padding:2%;">
 	<div class="panel panel-primary">

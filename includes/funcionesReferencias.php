@@ -118,7 +118,7 @@ $sql = "select idventa,tc.tipocerveza,cantidad,cantidad * precioventa,usuario,fe
 			from dbventas v 
 			inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
 			where	v.fechaventa >= concat(cast(".$dia." as CHAR),' ','14:00:00')
-					and v.fechaventa <= DATE_ADD(cast(concat(cast(".$dia." as CHAR),' ','14:00:00') as date), interval 28 hour) 
+					and v.fechaventa <= DATE_ADD(cast(concat(cast(".$dia." as CHAR),' ','14:00:00') as date), interval 32 hour) 
 			order by fechaventa DESC";
 $res = $this->query($sql,0);
 return $res;
@@ -179,7 +179,7 @@ $sql = "select idventa,tc.tipocerveza,cantidad,cantidad * precioventa,usuario,fe
 			from dbventas v 
 			inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
 			where	v.fechaventa >= concat(cast(".$dia." as CHAR),' ','14:00:00')
-					and v.fechaventa <= DATE_ADD(cast(concat(cast(".$dia." as CHAR),' ','14:00:00') as date), interval 28 hour) 
+					and v.fechaventa <= DATE_ADD(cast(concat(cast(".$dia." as CHAR),' ','14:00:00') as date), interval 32 hour) 
 					and v.reftipocerveza = ".$refTipoCerveza." and v.cancelado = 0
 			order by 1";
 $res = $this->query($sql,0);
@@ -199,7 +199,7 @@ function traerVentasPorDiaTipoCervezaLitros($refTipoCerveza) {
 				from dbventas v 
 				inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
 				where	v.fechaventa >= concat(cast(".$dia." as CHAR),' ','14:00:00')
-						and v.fechaventa <= DATE_ADD(cast(concat(cast(".$dia." as CHAR),' ','14:00:00') as date), interval 28 hour) 
+						and v.fechaventa <= DATE_ADD(cast(concat(cast(".$dia." as CHAR),' ','14:00:00') as date), interval 32 hour) 
 						and v.reftipocerveza = ".$refTipoCerveza." and v.cancelado = 0
 				";
 	$res = $this->query($sql,0);
