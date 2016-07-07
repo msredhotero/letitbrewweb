@@ -12,43 +12,37 @@ if (!isset($_SESSION['usua_predio']))
 include ('../../includes/funcionesUsuarios.php');
 include ('../../includes/funciones.php');
 include ('../../includes/funcionesHTML.php');
-include ('../../includes/funcionesClientes.php');
-include ('../../includes/funcionesEmpresas.php');
-include ('../../includes/funcionesFacturas.php');
-include ('../../includes/funcionesPagos.php');
+include ('../../includes/funcionesReferencias.php');
 
 $serviciosUsuarios  = new ServiciosUsuarios();
 $serviciosFunciones = new Servicios();
 $serviciosHTML		= new ServiciosHTML();
-$serviciosClientes 	= new ServiciosClientes();
-$serviciosEmpresas	= new ServiciosEmpresas();
-$serviciosFacturas	= new ServiciosFacturas();
-$serviciosPagos		= new ServiciosPagos();
+$serviciosReferencias 	= new ServiciosReferencias();
 
 $fecha = date('Y-m-d');
 
 //$resProductos = $serviciosProductos->traerProductosLimite(6);
-$resMenu = $serviciosHTML->menu(utf8_encode($_SESSION['nombre_predio']),"Reportes",$_SESSION['refroll_predio'],utf8_encode($_SESSION['usua_empresa']));
 
 
-$resEmpresas		=	$serviciosEmpresas->traerEmpresas();
 
-$resClientes		=	$serviciosClientes->traerClientes();
+$resTipoCerveza		=	$serviciosReferencias->traerTipoCervezas();
+
+$resUsuarios		=	$serviciosUsuarios->traerUsuarios();
 
 $cadRef = '';
-while ($rowTT = mysql_fetch_array($resClientes)) {
+while ($rowTT = mysql_fetch_array($resTipoCerveza)) {
 	$cadRef = $cadRef.'<option value="'.$rowTT[0].'">'.utf8_encode($rowTT[1]).'</option>';
 	
 }
 
 $cadRefE = '';
-while ($rowTTE = mysql_fetch_array($resEmpresas)) {
+while ($rowTTE = mysql_fetch_array($resUsuarios)) {
 	$cadRefE = $cadRefE.'<option value="'.$rowTTE[0].'">'.utf8_encode($rowTTE[1]).'</option>';
 	
 }
 
 
-if ($_SESSION['idroll_predio'] == 2) {
+if ($_SESSION['refroll_predio'] == 2) {
 	header('Location: ../index.php');
 } else {
 
@@ -69,11 +63,11 @@ if ($_SESSION['idroll_predio'] == 2) {
 
 
 
-<title>Gestión: Facturación - Cuentas Por Cobrar</title>
+<title>Gestión: Let it Brew</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
-<link href="../../css/estiloDash.css" rel="stylesheet" type="text/css">
+<link href="../../css/estilo.css" rel="stylesheet" type="text/css">
     
 
     
@@ -84,7 +78,7 @@ if ($_SESSION['idroll_predio'] == 2) {
     
 	<!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="../../css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" type="text/css" href="../../css/jquery.datetimepicker.css"/>
 	<link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
     <!-- Latest compiled and minified JavaScript -->
     <script src="../../bootstrap/js/bootstrap.min.js"></script>
@@ -109,24 +103,50 @@ if ($_SESSION['idroll_predio'] == 2) {
 
 <body>
 
- <?php echo $resMenu; ?>
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Let it Brew</a>
+    </div>
 
-<div id="content">
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li><a href="../">Panel de Control</a></li>
+        <li><a href="../tiposcervezas/">Tipos de Cervezas</a></li>
+        <li><a href="../ventas/">Ventas</a></li>
+        <li><a href="../usuarios/">Usuarios</a></li>
+        <li><a href="../estadisticas/">Estadisticas</a></li>
+        <li class="active"><a href="index.php">Informes <span class="sr-only">(current)</span></a></li>
+        <li><a href="../../logout.php">Salir</a></li>
+      </ul>
+      
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav> 
 
-<h3>Reportes</h3>
+<div class="row" style="padding:2%;">
 
-    <div class="boxInfoLargo">
-        <div id="headBoxInfo">
-        	<p style="color: #fff; font-size:18px; height:16px;">Reporte General de Facturación</p>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+        	<p style="color: #fff; font-size:18px; height:16px;">Caja Diaria - Mensual - Usuarios</p>
         	
         </div>
-    	<div class="cuerpoBox">
+    	<div class="panel-body">
         	<form class="form-inline formulario" role="form">
         	<div class="row">
             	<div class="form-group col-md-6">
-                    <label class="control-label" style="text-align:left" for="refcliente">Seleccione la Empresa</label>
+                    <label class="control-label" style="text-align:left" for="refcliente">Seleccione Usuario</label>
                     <div class="input-group col-md-12">
-                    	<select id="refempresa1" class="form-control" name="refempresa1">
+                    	<select id="refusuario1" class="form-control" name="refusuario1">
+							<option value="0">--- Seleccionar ---</option>
 							<?php echo $cadRefE; ?>
                     	</select>
                     </div>
@@ -135,14 +155,14 @@ if ($_SESSION['idroll_predio'] == 2) {
                 <div class="form-group col-md-3">
                     <label for="'.$campo.'" class="control-label" style="text-align:left">Fecha Desde</label>
                     <div class="input-group col-md-12">
-                        <input class="form-control" type="text" name="fechadesde1" id="fechadesde1" value="Date"/>
+                        <input class="form-control" type="text" name="fechadesde1" id="fechadesde1"/>
                     </div>
                 </div>
                 
                 <div class="form-group col-md-3">
                     <label for="'.$campo.'" class="control-label" style="text-align:left">Fecha Hasta</label>
                     <div class="input-group col-md-12">
-                        <input class="form-control" type="text" name="fechahasta1" id="fechahasta1" value="Date"/>
+                        <input class="form-control" type="text" name="fechahasta1" id="fechahasta1"/>
                     </div>
                 </div>
                 
@@ -177,361 +197,15 @@ if ($_SESSION['idroll_predio'] == 2) {
     	</div>
     </div>
     
-    <div class="boxInfoLargo">
-        <div id="headBoxInfo">
-        	<p style="color: #fff; font-size:18px; height:16px;">Reporte de Saldos de Clientes</p>
-        	
-        </div>
-    	<div class="cuerpoBox">
-        	<form class="form-inline formulario" role="form">
-        	<div class="row">
-            	<div class="form-group col-md-6">
-                    <label class="control-label" style="text-align:left" for="refcliente">Seleccione la Empresa</label>
-                    <div class="input-group col-md-12">
-                    	<select id="refempresa2" class="form-control" name="refempresa2">
-							<option value="0">-------Seleccione-------</option>
-							<?php echo $cadRefE; ?>
-                    	</select>
-                    </div>
-                </div>
-                
-                <div class="form-group col-md-3">
-                    <label for="'.$campo.'" class="control-label" style="text-align:left">Fecha Desde</label>
-                    <div class="input-group col-md-12">
-                        <input class="form-control" type="text" name="fechadesde2" id="fechadesde2" value="Date"/>
-                    </div>
-                </div>
-                
-                <div class="form-group col-md-3">
-                    <label for="'.$campo.'" class="control-label" style="text-align:left">Fecha Hasta</label>
-                    <div class="input-group col-md-12">
-                        <input class="form-control" type="text" name="fechahasta2" id="fechahasta2" value="Date"/>
-                    </div>
-                </div>
-                
-                <div class="form-group col-md-6">
-                    <label class="control-label" style="text-align:left" for="refcliente">Acción</label>
-
-                    <ul class="list-inline">
-                        <li>
-                            <button type="button" class="btn btn-success" id="rptsc" style="margin-left:0px;">Generar</button>
-                        </li>
-                        <li>
-                            <button type="button" class="btn btn-default" id="rptscExcel" style="margin-left:0px;">Generar Excel</button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            
-            
-            <div class='row' style="margin-left:25px; margin-right:25px;">
-                <div class='alert'>
-                
-                </div>
-                <div id='load'>
-                
-                </div>
-            </div>
-
-            </form>
-    	</div>
-    </div>
-    
-    
-    <div class="boxInfoLargo">
-        <div id="headBoxInfo">
-        	<p style="color: #fff; font-size:18px; height:16px;">Reporte de Estado de Cuenta de Clientes</p>
-        	
-        </div>
-    	<div class="cuerpoBox">
-        	<form class="form-inline formulario" role="form">
-        	<div class="row">
-            	<div class="form-group col-md-6">
-                    <label class="control-label" style="text-align:left" for="refcliente">Seleccione la Empresa</label>
-                    <div class="input-group col-md-12">
-                    	<select id="refempresa4" class="form-control" name="refempresa4">
-							<option value="0">-------Seleccione-------</option>
-							<?php echo $cadRefE; ?>
-                    	</select>
-                    </div>
-                </div>
-                
-            	<div class="form-group col-md-6">
-                    <label class="control-label" style="text-align:left" for="refcliente">Seleccione el Cliente</label>
-                    <div class="input-group col-md-12">
-                    	<select id="refcliente1" class="form-control" name="refcliente1">
-							
-                    	</select>
-                    </div>
-                </div>
-                
-                <div class="form-group col-md-3">
-                    <label for="'.$campo.'" class="control-label" style="text-align:left">Fecha Desde</label>
-                    <div class="input-group col-md-12">
-                        <input class="form-control" type="text" name="fechadesde3" id="fechadesde3" value="Date"/>
-                    </div>
-                </div>
-                
-                <div class="form-group col-md-3">
-                    <label for="'.$campo.'" class="control-label" style="text-align:left">Fecha Hasta</label>
-                    <div class="input-group col-md-12">
-                        <input class="form-control" type="text" name="fechahasta3" id="fechahasta3" value="Date"/>
-                    </div>
-                </div>
-                
-                <div class="form-group col-md-6">
-                    <label class="control-label" style="text-align:left" for="refcliente">Acción</label>
-                    <ul class="list-inline">
-                        <li>
-                            <button type="button" class="btn btn-success" id="rptscc" style="margin-left:0px;">Generar</button>
-                        </li>
-                        <li>
-                            <button type="button" class="btn btn-default" id="rptsccExcel" style="margin-left:0px;">Generar Excel</button>
-                        </li>
-                    </ul>
-                </div>
-                
-                
-
-            </div>
-            
-            
-            <div class='row' style="margin-left:25px; margin-right:25px;">
-                <div class='alert'>
-                
-                </div>
-                <div id='load'>
-                
-                </div>
-            </div>
-
-            </form>
-    	</div>
-    </div>
-    
-    
-    <div class="boxInfoLargo">
-        <div id="headBoxInfo">
-        	<p style="color: #fff; font-size:18px; height:16px;">Reporte por Empresa</p>
-        	
-        </div>
-    	<div class="cuerpoBox">
-        	<form class="form-inline formulario" role="form">
-        	<div class="row">
-            	<!--<div class="form-group col-md-6">
-                    <label class="control-label" style="text-align:left" for="refcliente">Seleccione la Empresa</label>
-                    <div class="input-group col-md-12">
-                    	<select id="refempresa3" class="form-control" name="refempresa3">
-							<option value="0">-------Seleccione-------</option>
-							<?php //echo $cadRefE; ?>
-                    	</select>
-                    </div>
-                </div>-->
-                
-                <div class="form-group col-md-3">
-                    <label for="'.$campo.'" class="control-label" style="text-align:left">Fecha Desde</label>
-                    <div class="input-group col-md-12">
-                        <input class="form-control" type="text" name="fechadesde4" id="fechadesde4" value="Date"/>
-                    </div>
-                </div>
-                
-                <div class="form-group col-md-3">
-                    <label for="'.$campo.'" class="control-label" style="text-align:left">Fecha Hasta</label>
-                    <div class="input-group col-md-12">
-                        <input class="form-control" type="text" name="fechahasta4" id="fechahasta4" value="Date"/>
-                    </div>
-                </div>
-                
-                <div class="form-group col-md-6">
-                    <label class="control-label" style="text-align:left" for="refcliente">Acción</label>
-                    <ul class="list-inline">
-                        <li>
-                            <button type="button" class="btn btn-success" id="rptcc" style="margin-left:0px;">Generar</button>
-                        </li>
-                        <li>
-                            <button type="button" class="btn btn-default" id="rptccExcel" style="margin-left:0px;">Generar Excel</button>
-                        </li>
-                    </ul>
-
-                </div>
-            </div>
-            
-            
-            <div class='row' style="margin-left:25px; margin-right:25px;">
-                <div class='alert'>
-                
-                </div>
-                <div id='load'>
-                
-                </div>
-            </div>
-
-            </form>
-    	</div>
-    </div>
-    
-    
-    
-    <div class="boxInfoLargo">
-        <div id="headBoxInfo">
-        	<p style="color: #fff; font-size:18px; height:16px;">Reporte de Estado de Cuenta de Cliente a las Empresas</p>
-        	
-        </div>
-    	<div class="cuerpoBox">
-        	<form class="form-inline formulario" role="form">
-        	<div class="row">
-
-                
-            	<div class="form-group col-md-6">
-                    <label class="control-label" style="text-align:left" for="refcliente">Seleccione el Cliente</label>
-                    <div class="input-group col-md-12">
-                    	<select id="refcliente5" class="form-control" name="refcliente5">
-							<?php echo $cadRef; ?>
-                    	</select>
-                    </div>
-                </div>
-                
-                <div class="form-group col-md-3">
-                    <label for="'.$campo.'" class="control-label" style="text-align:left">Fecha Desde</label>
-                    <div class="input-group col-md-12">
-                        <input class="form-control" type="text" name="fechadesde5" id="fechadesde5" value="Date"/>
-                    </div>
-                </div>
-                
-                <div class="form-group col-md-3">
-                    <label for="'.$campo.'" class="control-label" style="text-align:left">Fecha Hasta</label>
-                    <div class="input-group col-md-12">
-                        <input class="form-control" type="text" name="fechahasta5" id="fechahasta5" value="Date"/>
-                    </div>
-                </div>
-                
-                <div class="form-group col-md-6">
-                    <label class="control-label" style="text-align:left" for="refcliente">Acción</label>
-                    <ul class="list-inline">
-                        <li>
-                            <button type="button" class="btn btn-success" id="rpt5" style="margin-left:0px;">Generar</button>
-                        </li>
-                        <li>
-                            <button type="button" class="btn btn-default" id="rpt5Excel" style="margin-left:0px;">Generar Excel</button>
-                        </li>
-                    </ul>
-                </div>
-                
-                
-
-            </div>
-            
-            
-            <div class='row' style="margin-left:25px; margin-right:25px;">
-                <div class='alert'>
-                
-                </div>
-                <div id='load'>
-                
-                </div>
-            </div>
-
-            </form>
-    	</div>
-    </div>
-    
-    
-    <div class="boxInfoLargo">
-        <div id="headBoxInfo">
-        	<p style="color: #fff; font-size:18px; height:16px;">Reporte Listado de Socios y Empresas</p>
-        	
-        </div>
-    	<div class="cuerpoBox">
-        	<form class="form-inline formulario" role="form">
-        	<div class="row">
-
-                
-                <div class="form-group col-md-6">
-                    <label class="control-label" style="text-align:left" for="refcliente">Acción</label>
-                    <ul class="list-inline">
-                        <li>
-                            <button type="button" class="btn btn-success" id="rpt6" style="margin-left:0px;">Generar</button>
-                        </li>
-                        <li>
-                            <button type="button" class="btn btn-default" id="rpt6Excel" style="margin-left:0px;">Generar Excel</button>
-                        </li>
-                    </ul>
-                </div>
-                
-                
-
-            </div>
-            
-            
-            <div class='row' style="margin-left:25px; margin-right:25px;">
-                <div class='alert6'>
-                
-                </div>
-                <div id='load6'>
-                
-                </div>
-            </div>
-
-            </form>
-    	</div>
-    </div>
-    
-    
-    
-    
-    <div class="boxInfoLargo">
-        <div id="headBoxInfo">
-        	<p style="color: #fff; font-size:18px; height:16px;">Reporte Listado de Socios</p>
-        	
-        </div>
-    	<div class="cuerpoBox">
-        	<form class="form-inline formulario" role="form">
-        	<div class="row">
-
-                
-                <div class="form-group col-md-6">
-                    <label class="control-label" style="text-align:left" for="refcliente">Acción</label>
-                    <ul class="list-inline">
-                        <li>
-                            <button type="button" class="btn btn-success" id="rpt7" style="margin-left:0px;">Generar</button>
-                        </li>
-                        <li>
-                            <button type="button" class="btn btn-default" id="rpt7Excel" style="margin-left:0px;">Generar Excel</button>
-                        </li>
-                    </ul>
-                </div>
-                
-                
-
-            </div>
-            
-            
-            <div class='row' style="margin-left:25px; margin-right:25px;">
-                <div class='alert7'>
-                
-                </div>
-                <div id='load6'>
-                
-                </div>
-            </div>
-
-            </form>
-    	</div>
-    </div>
     
 
-    
-    
-   
-</div>
 
 
 </div>
 
 <script type="text/javascript" src="../../js/jquery.dataTables.min.js"></script>
 <script src="../../bootstrap/js/dataTables.bootstrap.js"></script>
-<script src="../../js/bootstrap-datetimepicker.min.js"></script>
-<script src="../../js/bootstrap-datetimepicker.es.js"></script>
+<script src="../../js/jquery.datetimepicker.full.min.js"></script>
 
 <script type="text/javascript">
 $(document).ready(function(){
@@ -559,151 +233,36 @@ $(document).ready(function(){
 
 	
 	$("#rptgf").click(function(event) {
-        window.open("../../reportes/rptFacturacionGeneral.php?id=" + $("#refempresa1").val() + "&fechadesde=" + $("#fechadesde1").val()+ "&fechahasta=" + $("#fechahasta1").val(),'_blank');	
+        window.open("../../reportes/rptCajaGeneral.php?id=" + $("#refusuario1").val() + "&fechadesde=" + $("#fechadesde1").val()+ "&fechahasta=" + $("#fechahasta1").val(),'_blank');	
 						
     });
-	
-	
-	$("#rptsc").click(function(event) {
-        window.open("../../reportes/rptSaldosClientes.php?idEmp=" + $("#refempresa2").val() + "&fechadesde=" + $("#fechadesde2").val()+ "&fechahasta=" + $("#fechahasta2").val(),'_blank');	
-						
-    });
-	
-	$("#rptscc").click(function(event) {
-        window.open("../../reportes/rptSaldosPorClientes.php?idEmp=" + $("#refempresa4").val() + "&idClie=" + $("#refcliente1").val() + "&fechadesde=" + $("#fechadesde3").val()+ "&fechahasta=" + $("#fechahasta3").val(),'_blank');	
-						
-    });
-	
-	$('#rptcc').click(function(e) {
-        window.open("../../reportes/rptSaldosEmpresa.php?fechadesde=" + $("#fechadesde4").val()+ "&fechahasta=" + $("#fechahasta4").val(),'_blank');
-    });
-	
-	$("#rpt5").click(function(event) {
-        window.open("../../reportes/rptSaldosClientesEmpresas.php?idClie=" + $("#refcliente5").val() + "&fechadesde=" + $("#fechadesde5").val()+ "&fechahasta=" + $("#fechahasta5").val(),'_blank');	
-						
-    });
-	
-	
-	$("#rpt6").click(function(event) {
-        window.open("../../reportes/rptSociosEmpresas.php",'_blank');	
-						
-    });
-	
-	$("#rpt7").click(function(event) {
-        window.open("../../reportes/rptSocios.php",'_blank');	
-						
-    });
-
-	
-	
 	
 	
 	$("#rptgfExcel").click(function(event) {
-        window.open("../../reportes/rptFacturacionGeneralExcel.php?id=" + $("#refempresa1").val() + "&fechadesde=" + $("#fechadesde1").val()+ "&fechahasta=" + $("#fechahasta1").val(),'_blank');	
+        window.open("../../reportes/rptCajaGeneralExcel.php?id=" + $("#refusuario1").val() + "&fechadesde=" + $("#fechadesde1").val()+ "&fechahasta=" + $("#fechahasta1").val(),'_blank');	
 						
     });
 	
-	$("#rptscExcel").click(function(event) {
-        window.open("../../reportes/rptSaldosClientesExcel.php?idEmp=" + $("#refempresa2").val() + "&fechadesde=" + $("#fechadesde2").val()+ "&fechahasta=" + $("#fechahasta2").val(),'_blank');	
-						
-    });
 	
-	$("#rptsccExcel").click(function(event) {
-        window.open("../../reportes/rptSaldosPorClientesExcel.php?idEmp=" + $("#refempresa4").val() + "&idClie=" + $("#refcliente1").val() + "&fechadesde=" + $("#fechadesde3").val()+ "&fechahasta=" + $("#fechahasta3").val(),'_blank');	
-						
-    });
+	$('#fechadesde1').datetimepicker({
+	dayOfWeekStart : 1,
+	format: 'Y-m-d H:i',
+	lang:'en'
+	});
+	$('#fechadesde1').datetimepicker({step:10});
 	
-	$('#rptccExcel').click(function(e) {
-        window.open("../../reportes/rptSaldosEmpresaExcel.php?fechadesde=" + $("#fechadesde4").val()+ "&fechahasta=" + $("#fechahasta4").val(),'_blank');
-    });
-	
-	$("#rpt5Excel").click(function(event) {
-        window.open("../../reportes/rptSaldosClientesEmpresasExcel.php?idClie=" + $("#refcliente5").val() + "&fechadesde=" + $("#fechadesde5").val()+ "&fechahasta=" + $("#fechahasta5").val(),'_blank');	
-						
-    });
-	
-	$("#rpt6Excel").click(function(event) {
-        window.open("../../reportes/rptSociosEmpresasExcel.php",'_blank');	
-						
-    });
-	
-	$("#rpt7Excel").click(function(event) {
-        window.open("../../reportes/rptSociosExcel.php",'_blank');	
-						
-    });
+	$('#fechahasta1').datetimepicker({
+	dayOfWeekStart : 1,
+	format: 'Y-m-d H:i',
+	lang:'en'
+	});
+	$('#fechahasta1').datetimepicker({step:10});
 
 });
 </script>
-<script type="text/javascript">
-/*
-$('.form_date').datetimepicker({
-	language:  'es',
-	weekStart: 1,
-	todayBtn:  1,
-	autoclose: 1,
-	todayHighlight: 1,
-	startView: 2,
-	minView: 2,
-	forceParse: 0,
-	format: 'dd/mm/yyyy'
-});
-*/
-</script>
 
-<script>
-  $(function() {
-	  $.datepicker.regional['es'] = {
- closeText: 'Cerrar',
- prevText: '<Ant',
- nextText: 'Sig>',
- currentText: 'Hoy',
- monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
- monthNamesShort: ['Ene','Feb','Mar','Abr', 'May','Jun','Jul','Ago','Sep', 'Oct','Nov','Dic'],
- dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
- dayNamesShort: ['Dom','Lun','Mar','Mié','Juv','Vie','Sáb'],
- dayNamesMin: ['Do','Lu','Ma','Mi','Ju','Vi','Sá'],
- weekHeader: 'Sm',
- dateFormat: 'dd/mm/yy',
- firstDay: 1,
- isRTL: false,
- showMonthAfterYear: false,
- yearSuffix: ''
- };
- $.datepicker.setDefaults($.datepicker.regional['es']);
- 
-    $( "#fechadesde1" ).datepicker();
-    $( "#fechadesde1" ).datepicker( "option", "dateFormat", "yy-mm-dd" );
-	
-	$( "#fechadesde2" ).datepicker();
-    $( "#fechadesde2" ).datepicker( "option", "dateFormat", "yy-mm-dd" );
-	
-	$( "#fechadesde3" ).datepicker();
-    $( "#fechadesde3" ).datepicker( "option", "dateFormat", "yy-mm-dd" );
-	
-	$( "#fechadesde4" ).datepicker();
-    $( "#fechadesde4" ).datepicker( "option", "dateFormat", "yy-mm-dd" );
-	
-	$( "#fechadesde5" ).datepicker();
-    $( "#fechadesde5" ).datepicker( "option", "dateFormat", "yy-mm-dd" );
-	
-	
-	$( "#fechahasta1" ).datepicker();
-    $( "#fechahasta1" ).datepicker( "option", "dateFormat", "yy-mm-dd" );
-	
-	$( "#fechahasta2" ).datepicker();
-    $( "#fechahasta2" ).datepicker( "option", "dateFormat", "yy-mm-dd" );
-	
-	$( "#fechahasta3" ).datepicker();
-    $( "#fechahasta3" ).datepicker( "option", "dateFormat", "yy-mm-dd" );
-	
-	$( "#fechahasta4" ).datepicker();
-    $( "#fechahasta4" ).datepicker( "option", "dateFormat", "yy-mm-dd" );
-	
-	$( "#fechahasta5" ).datepicker();
-    $( "#fechahasta5" ).datepicker( "option", "dateFormat", "yy-mm-dd" );
-	
-  });
-  </script>
+
+
 <?php } ?>
 </body>
 </html>

@@ -124,10 +124,34 @@ $res = $this->query($sql,0);
 return $res;
 }
 
-function traerVentasPorFechas() {
-$sql = "select idventa,reftipocerveza,precioventa,cantidad,usuario,fechaventa,cancelado,observaciones from dbventas order by 1";
+function traerVentasPorUsuarioFechas($usuario,$fechadesde, $fechahasta) {
+	$where = '';
+$sql = "select idventa,tc.tipocerveza,cantidad,(cantidad * precioventa) as monto,usuario,fechaventa,(case when cancelado=0 then 'No' else 'Si' end) as cancelado ,v.observaciones 
+			from dbventas v 
+			inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza ";
+			if (($fechadesde != '') && ($fechahasta != '')) {
+		$where.= " where v.fechaventa BETWEEN '".$fechadesde."' and '".$fechahasta."' ";
+				} else {
+					if ($fechadesde != '') {
+						$where= " where v.fechaventa >= '".$fechadesde."' ";
+					} else {
+						if ($fechahasta != '') {
+							$where= " where v.fechaventa <= '".$fechahasta."' ";
+						}
+					}
+				}
+			if (($usuario != '') and ($usuario != 'Todos')) {
+				if ($where != '') {
+					$where .= "and v.usuario = '".$usuario."'";	
+				} else {
+					$where .= "where v.usuario = '".$usuario."'";	
+				}
+			}
+		$sql .= $where;	
+		$sql .= "	order by fechaventa DESC";
 $res = $this->query($sql,0);
 return $res;
+//return $sql;
 }
 
 function traerVentasPorUsuario() {
@@ -156,7 +180,7 @@ $sql = "select idventa,tc.tipocerveza,cantidad,cantidad * precioventa,usuario,fe
 			inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
 			where	v.fechaventa >= concat(cast(".$dia." as CHAR),' ','14:00:00')
 					and v.fechaventa <= DATE_ADD(cast(concat(cast(".$dia." as CHAR),' ','14:00:00') as date), interval 28 hour) 
-					and v.reftipocerveza = ".$refTipoCerveza."
+					and v.reftipocerveza = ".$refTipoCerveza." and v.cancelado = 0
 			order by 1";
 $res = $this->query($sql,0);
 return $res;
@@ -176,7 +200,7 @@ function traerVentasPorDiaTipoCervezaLitros($refTipoCerveza) {
 				inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
 				where	v.fechaventa >= concat(cast(".$dia." as CHAR),' ','14:00:00')
 						and v.fechaventa <= DATE_ADD(cast(concat(cast(".$dia." as CHAR),' ','14:00:00') as date), interval 28 hour) 
-						and v.reftipocerveza = ".$refTipoCerveza."
+						and v.reftipocerveza = ".$refTipoCerveza." and v.cancelado = 0
 				";
 	$res = $this->query($sql,0);
 	if (mysql_num_rows($res)>0) {
@@ -205,6 +229,7 @@ if ($where != '') {
 					tc.idtipocerveza, tc.tipocerveza, coalesce(sum(v.cantidad),0)
 				from dbventas v 
 					inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
+				where v.cancelado = 0
 				group by tc.idtipocerveza, tc.tipocerveza
 				order by tc.tipocerveza
 		";
@@ -215,6 +240,7 @@ if ($where != '') {
 		
 		from dbventas v 
 					inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
+				where v.cancelado = 0
 				";
 
 		
@@ -223,6 +249,7 @@ if ($where != '') {
 					tc.idtipocerveza, tc.tipocerveza, coalesce(sum(v.cantidad),0)
 				from dbventas v 
 					inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
+				where v.cancelado = 0
 				group by tc.idtipocerveza, tc.tipocerveza
 				order by tc.tipocerveza
 		";
@@ -233,6 +260,7 @@ if ($where != '') {
 		
 		from dbventas v 
 					inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
+				where v.cancelado = 0
 				";
 	}
 	

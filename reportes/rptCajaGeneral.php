@@ -5,23 +5,13 @@ date_default_timezone_set('America/Buenos_Aires');
 include ('../includes/funcionesUsuarios.php');
 include ('../includes/funciones.php');
 include ('../includes/funcionesHTML.php');
-include ('../includes/funcionesClientes.php');
-include ('../includes/funcionesEmpresas.php');
-include ('../includes/funcionesEmpresaClientes.php');
-include ('../includes/funcionesFacturas.php');
-include ('../includes/funcionesPagos.php');
-include ('../includes/funcionesReportes.php');
+include ('../includes/funcionesReferencias.php');
 
 
 $serviciosUsuarios  		= new ServiciosUsuarios();
 $serviciosFunciones 		= new Servicios();
 $serviciosHTML				= new ServiciosHTML();
-$serviciosClientes 			= new ServiciosClientes();
-$serviciosEmpresas			= new ServiciosEmpresas();
-$serviciosEmpresaClientes 	= new ServiciosEmpresaClientes();
-$serviciosFacturas			= new ServiciosFacturas();
-$serviciosPagos				= new ServiciosPagos();
-$serviciosReportes			= new ServiciosReportes();
+$serviciosReferencias 	= new ServiciosReferencias();
 
 $fecha = date('Y-m-d');
 
@@ -29,7 +19,15 @@ require('fpdf.php');
 
 //$header = array("Hora", "Cancha 1", "Cancha 2", "Cancha 3");
 
-$id				=	$_GET['id'];
+if ($_GET['id'] != 0) {
+	$id				=	$_GET['usuario'];	
+	$resUsuario		=	$serviciosUsuarios->traerUsuarioId($id);
+	$usuario		=	mysql_result($resUsuario,0,'nombrecompleto');
+} else {
+	
+	$usuario = 'Todos';	
+}
+
 
 //////////////////              PARA LAS FECHAS        /////////////////////////////////////////////////////////////////
 
@@ -39,12 +37,9 @@ $fechahasta		=	$_GET['fechahasta'];
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-$resEmpresa		=	$serviciosEmpresas->traerEmpresasPorId($id);
 
-$empresa		=	mysql_result($resEmpresa,0,1);
-
-$datos			=	$serviciosReportes->rptFacturacionGeneralPorEmpresa($id,$fechadesde,$fechahasta);
-
+$datos			=	$serviciosReferencias->traerVentasPorUsuarioFechas($usuario,$fechadesde,$fechahasta);
+//die(var_dump($datos));
 $TotalIngresos = 0;
 $TotalEgresos = 0;
 $Totales = 0;
@@ -65,7 +60,7 @@ function ingresosFacturacion($header, $data, &$TotalIngresos)
 	$this->SetFont('Arial','',12);
 	$this->Ln();
 	$this->Ln();
-	$this->Cell(60,7,'Facturación General',0,0,'L',false);
+	$this->Cell(60,7,'Caja Diaria - Mensual - Usuarios',0,0,'L',false);
 	$this->SetFont('Arial','',11);
     // Colores, ancho de línea y fuente en negrita
     $this->SetFillColor(255,0,0);
@@ -76,7 +71,7 @@ function ingresosFacturacion($header, $data, &$TotalIngresos)
 	
 	
     // Cabecera
-    $w = array(20,75,60,22,30,30,30);
+    $w = array(75,22,22,60,30,22);
     for($i=0;$i<count($header);$i++)
         $this->Cell($w[$i],6,$header[$i],1,0,'C',true);
     $this->Ln();
@@ -89,24 +84,23 @@ function ingresosFacturacion($header, $data, &$TotalIngresos)
 	
 	$total = 0;
 	$totalcant = 0;
-	$sumSaldos = 0;
-	$sumAbonos = 0;
+	$totalLitros = 0;
 	
 	$this->SetFont('Arial','',9);
     while ($row = mysql_fetch_array($data))
     {
-		$total = $total + $row[4];
-		$totalcant = $totalcant + 1;
-		$sumSaldos = $sumSaldos + $row[6];
-		$sumAbonos = $sumAbonos + $row[5];
-		
-        $this->Cell($w[0],5,$row[0],'LR',0,'L',$fill);
-		$this->Cell($w[1],5,substr($row[1],0,60),'LR',0,'L',$fill);
-        $this->Cell($w[2],5,substr($row[2],0,45),'LR',0,'L',$fill);
-		$this->Cell($w[3],5,$row[3],'LR',0,'C',$fill);
-		$this->Cell($w[4],5,number_format($row[4],2,',','.'),'LR',0,'R',$fill);
-		$this->Cell($w[5],5,number_format($row[5],2,',','.'),'LR',0,'R',$fill);
-		$this->Cell($w[6],5,number_format($row[6],2,',','.'),'LR',0,'R',$fill);
+		if ($row['cancelado'] == 0) {
+		$total = $total + $row['monto'];
+		$totalcant += 1; 
+		$totalLitros = $totalLitros + $row['cantidad'];
+		}
+
+        $this->Cell($w[0],5,$row[1],'LR',0,'L',$fill);
+		$this->Cell($w[1],5,$row[2],'LR',0,'C',$fill);
+        $this->Cell($w[2],5,'$'.number_format($row[3],2,',','.'),'LR',0,'R',$fill);
+		$this->Cell($w[3],5,$row[4],'LR',0,'L',$fill);
+		$this->Cell($w[4],5,$row[5],'LR',0,'C',$fill);
+		$this->Cell($w[5],5,$row[6],'LR',0,'C',$fill);
         $this->Ln();
         
 		
@@ -131,9 +125,8 @@ function ingresosFacturacion($header, $data, &$TotalIngresos)
     }
 	
 	$this->Cell($w[0]+$w[1]+$w[2]+$w[3],5,'Totales:','LRT',0,'L',$fill);
-	$this->Cell($w[4],5,number_format($total,2,',','.'),'LRT',0,'R',$fill);
-	$this->Cell($w[5],5,number_format($sumAbonos,2,',','.'),'LRT',0,'R',$fill);
-	$this->Cell($w[6],5,number_format($sumSaldos,2,',','.'),'LRT',0,'R',$fill);
+	$this->Cell($w[4]+$w[5],5,number_format($total,2,',','.'),'LRT',0,'R',$fill);
+
 	$fill = !$fill;
 	$this->Ln();
     // Línea de cierre
@@ -141,11 +134,12 @@ function ingresosFacturacion($header, $data, &$TotalIngresos)
 	$this->SetFont('Arial','',12);
 	$this->Ln();
 	$this->Ln();
-	$this->Cell(60,7,'Cantidad de Facturas: '.$totalcant,0,0,'L',false);
+	$this->Cell(60,7,'Cantidad de Ventas: '.$totalcant,0,0,'L',false);
 	$this->Ln();
-	$this->Cell(60,7,'Total: $'.number_format($sumSaldos, 2, '.', ','),0,0,'L',false);
+	$this->Cell(60,7,'Total Litros Vendidos: '.$totalLitros,0,0,'L',false);
+	$this->Ln();
+	$this->Cell(60,7,'Total: $'.number_format($total, 2, '.', ',').'  /* No se tienen en cuenta las ventas canceladas */',0,0,'L',false);
 	
-	$TotalIngresos = $TotalIngresos + $total;
 }
 
 //Pie de página
@@ -171,16 +165,16 @@ $pdf = new PDF("L");
 
 // Títulos de las columnas
 
-$headerFacturacion = array("Factura", "Cliente", "Referencia de Pago","Fecha", "Importe", "Abonos", "Saldo");
+$headerFacturacion = array("Cerveza", "Cant. Ltrs", "Monto","Usuario", "Fecha", "Cancelado");
 // Carga de datos
 
 $pdf->AddPage();
 
 $pdf->SetFont('Arial','U',17);
-$pdf->Cell(260,7,'Reporte General de Facturación',0,0,'C',false);
+$pdf->Cell(260,7,'Reporte Caja',0,0,'C',false);
 $pdf->Ln();
 $pdf->SetFont('Arial','U',14);
-$pdf->Cell(260,7,"Empresa: ".strtoupper($empresa),0,0,'C',false);
+$pdf->Cell(260,7,"Usuario: ".strtoupper($usuario),0,0,'C',false);
 $pdf->Ln();
 $pdf->Cell(260,7,'Fecha: desde '.$fechadesde." hasta ".$fechahasta,0,0,'C',false);
 $pdf->Ln();
@@ -195,7 +189,7 @@ $pdf->Ln();
 
 $pdf->SetFont('Arial','',13);
 
-$nombreTurno = "rptFacturacionGeneral-".$fecha.".pdf";
+$nombreTurno = "rptCajaGeneral-".$fecha.".pdf";
 
 $pdf->Output($nombreTurno,'D');
 

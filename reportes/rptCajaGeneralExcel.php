@@ -12,31 +12,31 @@ date_default_timezone_set('America/Buenos_Aires');
 include ('../includes/funcionesUsuarios.php');
 include ('../includes/funciones.php');
 include ('../includes/funcionesHTML.php');
-include ('../includes/funcionesClientes.php');
-include ('../includes/funcionesEmpresas.php');
-include ('../includes/funcionesEmpresaClientes.php');
-include ('../includes/funcionesFacturas.php');
-include ('../includes/funcionesPagos.php');
-include ('../includes/funcionesReportes.php');
+include ('../includes/funcionesReferencias.php');
 
-require_once '../excelClass/PHPExcel.php';
 
 $serviciosUsuarios  		= new ServiciosUsuarios();
 $serviciosFunciones 		= new Servicios();
 $serviciosHTML				= new ServiciosHTML();
-$serviciosClientes 			= new ServiciosClientes();
-$serviciosEmpresas			= new ServiciosEmpresas();
-$serviciosEmpresaClientes 	= new ServiciosEmpresaClientes();
-$serviciosFacturas			= new ServiciosFacturas();
-$serviciosPagos				= new ServiciosPagos();
-$serviciosReportes			= new ServiciosReportes();
+$serviciosReferencias 	= new ServiciosReferencias();
+
+require_once '../excelClass/PHPExcel.php';
+
 
 $fecha = date('Y-m-d');
 
 
 //$header = array("Hora", "Cancha 1", "Cancha 2", "Cancha 3");
 
-$id				=	$_GET['id'];
+if ($_GET['id'] != 0) {
+	$id				=	$_GET['usuario'];	
+	$resUsuario		=	$serviciosUsuarios->traerUsuarioId($id);
+	$usuario		=	mysql_result($resUsuario,0,'nombrecompleto');
+} else {
+	
+	$usuario = 'Todos';	
+}
+
 
 //////////////////              PARA LAS FECHAS        /////////////////////////////////////////////////////////////////
 
@@ -46,11 +46,7 @@ $fechahasta		=	$_GET['fechahasta'];
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-$resEmpresa		=	$serviciosEmpresas->traerEmpresasPorId($id);
-
-$empresa		=	mysql_result($resEmpresa,0,1);
-
-$datos			=	$serviciosReportes->rptFacturacionGeneralPorEmpresa($id,$fechadesde,$fechahasta);
+$datos			=	$serviciosReferencias->traerVentasPorUsuarioFechas($usuario,$fechadesde,$fechahasta);
 
 $TotalIngresos = 0;
 $TotalEgresos = 0;
@@ -72,17 +68,17 @@ $objPHPExcel->getProperties()
 ->setKeywords("Excel Office 2007 openxml php")
 ->setCategory("Excel");
  
-$tituloReporte = "Reporte General de Facturación";
-$tituloReporte2 = "Empresa: ".strtoupper($empresa); 
+$tituloReporte = "Reporte Caja";
+$tituloReporte2 = "Usuario: ".strtoupper($usuario); 
 $tituloReporte3 = "Fecha: ".date('Y-m-d');
-$titulosColumnas = array("Factura", "Cliente", "Referencia de Pago","Fecha", "Importe", "Abonos", "Saldo");
+$titulosColumnas = array("Cerveza", "Cant. Ltrs", "Monto","Usuario", "Fecha", "Cancelado");
 
 $objPHPExcel->setActiveSheetIndex(0)
-    ->mergeCells('A1:G1');
+    ->mergeCells('A1:F1');
 $objPHPExcel->setActiveSheetIndex(0)
-    ->mergeCells('A2:G2');
+    ->mergeCells('A2:F2');
 $objPHPExcel->setActiveSheetIndex(0)
-    ->mergeCells('A3:G3');
+    ->mergeCells('A3:F3');
 	
 	 
 // Se agregan los titulos del reporte
@@ -95,8 +91,7 @@ $objPHPExcel->setActiveSheetIndex(0)
     ->setCellValue('C4',  utf8_encode($titulosColumnas[2]))
     ->setCellValue('D4',  $titulosColumnas[3])
 	->setCellValue('E4',  $titulosColumnas[4])
-    ->setCellValue('F4',  $titulosColumnas[5])
-    ->setCellValue('G4',  $titulosColumnas[6]);
+    ->setCellValue('F4',  $titulosColumnas[5]);
 
 
 // Agregar Informacion
@@ -110,13 +105,12 @@ $objPHPExcel->setActiveSheetIndex(0)
 $i = 5; //Numero de fila donde se va a comenzar a rellenar
  while ($fila = mysql_fetch_array($datos)) {
      $objPHPExcel->setActiveSheetIndex(0)
-         ->setCellValue('A'.$i, utf8_encode($fila[0]))
-         ->setCellValue('B'.$i, utf8_encode($fila[1]))
-         ->setCellValue('C'.$i, utf8_encode($fila[2]))
-         ->setCellValue('D'.$i, $fila[3])
-		 ->setCellValue('E'.$i, $fila[4])
-         ->setCellValue('F'.$i, $fila[5])
-         ->setCellValue('G'.$i, $fila[6]);
+         ->setCellValue('A'.$i, utf8_encode($fila[1]))
+         ->setCellValue('B'.$i, utf8_encode($fila[2]))
+         ->setCellValue('C'.$i, utf8_encode($fila[3]))
+         ->setCellValue('D'.$i, $fila[4])
+		 ->setCellValue('E'.$i, $fila[5])
+         ->setCellValue('F'.$i, $fila[6]);
      $i++;
  }
 
@@ -211,10 +205,10 @@ $estiloInformacion->applyFromArray( array(
     )
 ));
 
-$objPHPExcel->getActiveSheet()->getStyle('A1:G1')->applyFromArray($estiloTituloReporte);
-$objPHPExcel->getActiveSheet()->getStyle('A2:G2')->applyFromArray($estiloTituloReporte);
-$objPHPExcel->getActiveSheet()->getStyle('A3:G3')->applyFromArray($estiloTituloReporte);
-$objPHPExcel->getActiveSheet()->getStyle('A4:G4')->applyFromArray($estiloTituloColumnas);
+$objPHPExcel->getActiveSheet()->getStyle('A1:F1')->applyFromArray($estiloTituloReporte);
+$objPHPExcel->getActiveSheet()->getStyle('A2:F2')->applyFromArray($estiloTituloReporte);
+$objPHPExcel->getActiveSheet()->getStyle('A3:F3')->applyFromArray($estiloTituloReporte);
+$objPHPExcel->getActiveSheet()->getStyle('A4:F4')->applyFromArray($estiloTituloColumnas);
 
 // Renombrar Hoja
 $objPHPExcel->getActiveSheet()->setTitle('Hoja1');
@@ -224,7 +218,7 @@ $objPHPExcel->setActiveSheetIndex(0);
  
 // Se modifican los encabezados del HTTP para indicar que se envia un archivo de Excel.
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8');
-header('Content-Disposition: attachment;filename="rptFacturacionGeneral.xlsx"');
+header('Content-Disposition: attachment;filename="rptCajaGeneral.xlsx"');
 header('Cache-Control: max-age=0');
 $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 $objWriter->save('php://output');
