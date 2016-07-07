@@ -31,11 +31,19 @@ require('fpdf.php');
 
 $id				=	$_GET['id'];
 
+//////////////////              PARA LAS FECHAS        /////////////////////////////////////////////////////////////////
+
+$fechadesde		=	$_GET['fechadesde'];
+$fechahasta		=	$_GET['fechahasta'];
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 $resEmpresa		=	$serviciosEmpresas->traerEmpresasPorId($id);
 
 $empresa		=	mysql_result($resEmpresa,0,1);
 
-$datos			=	$serviciosReportes->rptFacturacionGeneralPorEmpresa($id);
+$datos			=	$serviciosReportes->rptFacturacionGeneralPorEmpresa($id,$fechadesde,$fechahasta);
 
 $TotalIngresos = 0;
 $TotalEgresos = 0;
@@ -140,6 +148,17 @@ function ingresosFacturacion($header, $data, &$TotalIngresos)
 	$TotalIngresos = $TotalIngresos + $total;
 }
 
+//Pie de página
+function Footer()
+{
+
+$this->SetY(-10);
+
+$this->SetFont('Arial','I',8);
+
+$this->Cell(0,10,'Pagina '.$this->PageNo()." - Fecha: ".date('Y-m-d'),0,0,'C');
+}
+   
 }
 
 
@@ -152,7 +171,7 @@ $pdf = new PDF("L");
 
 // Títulos de las columnas
 
-$headerFacturacion = array("Factura", "Cliente", "Referencia","Fecha", "Importe", "Abonos", "Saldo");
+$headerFacturacion = array("Factura", "Cliente", "Referencia de Pago","Fecha", "Importe", "Abonos", "Saldo");
 // Carga de datos
 
 $pdf->AddPage();
@@ -163,7 +182,7 @@ $pdf->Ln();
 $pdf->SetFont('Arial','U',14);
 $pdf->Cell(260,7,"Empresa: ".strtoupper($empresa),0,0,'C',false);
 $pdf->Ln();
-$pdf->Cell(260,7,'Fecha: '.date('Y-m-d'),0,0,'C',false);
+$pdf->Cell(260,7,'Fecha: desde '.$fechadesde." hasta ".$fechahasta,0,0,'C',false);
 $pdf->Ln();
 
 $pdf->SetFont('Arial','',10);
@@ -171,6 +190,8 @@ $pdf->SetFont('Arial','',10);
 $pdf->ingresosFacturacion($headerFacturacion,$datos,$TotalFacturacion);
 
 $pdf->Ln();
+
+
 
 $pdf->SetFont('Arial','',13);
 
