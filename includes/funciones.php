@@ -277,7 +277,7 @@ class Servicios {
 									<div class="form-group col-md-6">
 										<label for="'.$campo.'" class="control-label" style="text-align:left">'.$label.'</label>
 										<div class="input-group col-md-6">
-											<input class="form-control" type="text" name="'.$campo.'" id="'.$campo.'" value="Date"/>
+											<input class="form-control" type="text" name="'.$campo.'" id="'.$campo.'"/>
 										</div>
 										
 									</div>
@@ -536,7 +536,7 @@ class Servicios {
 									<div class="form-group col-md-6">
 										<label for="'.$campo.'" class="control-label" style="text-align:left">'.$label.'</label>
 										<div class="input-group col-md-6">
-											<input class="form-control" type="text" name="'.$campo.'" id="'.$campo.'" value="Date"/>
+											<input class="form-control" type="text" name="'.$campo.'" id="'.$campo.'" value="'.mysql_result($resMod,0,$row[0]).'"/>
 										</div>
 										
 									</div>

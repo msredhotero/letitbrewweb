@@ -121,7 +121,7 @@ if ($_SESSION['refroll_predio'] == 2) {
       <ul class="nav navbar-nav">
         <li><a href="../">Panel de Control</a></li>
         <li><a href="../tiposcervezas/">Tipos de Cervezas</a></li>
-        <li><a href="../ventas/">Ventas</a></li>
+        <li><a href="../excepcioneshorarias/">Excepciones Horarias</a></li>
         <li><a href="../usuarios/">Usuarios</a></li>
         <li><a href="../estadisticas/">Estadisticas</a></li>
         <li class="active"><a href="index.php">Informes <span class="sr-only">(current)</span></a></li>

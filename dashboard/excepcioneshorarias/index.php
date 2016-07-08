@@ -26,28 +26,33 @@ $fecha = date('Y-m-d');
 
 
 /////////////////////// Opciones pagina ///////////////////////////////////////////////
-$singular = "Tipo de Cerveza";
+$singular = "Excepción";
 
-$plural = "Tipos de Cervezas";
+$plural = "Excepciones";
 
-$eliminar = "eliminarTipoCervezas";
+$eliminar = "eliminarExcepcionHorario";
 
-$insertar = "insertarTipoCervezas";
+$insertar = "insertarExcepcionHorario";
 
 $tituloWeb = "Gestión: Let it Brew";
 //////////////////////// Fin opciones ////////////////////////////////////////////////
 
 
 /////////////////////// Opciones para la creacion del formulario  /////////////////////
-$tabla 			= "tbtipocervezas";
+$tabla 			= "dbexcepcionhorario";
 
-$lblCambio	 	= array("tipocerveza");
+$lblCambio	 	= array("reftipocerveza");
 $lblreemplazo	= array("Tipo Cerveza");
 
+$cadRef = '';
+$refTipoCerveza = $serviciosReferencias->traerTipoCervezas();
+while ($rowTT = mysql_fetch_array($refTipoCerveza)) {
+	$cadRef = $cadRef.'<option value="'.$rowTT[0].'">'.utf8_encode($rowTT[1]).'</option>';
+	
+}
 
-
-$refdescripcion = array();
-$refCampo 	=  array();
+$refdescripcion = array(0 => $cadRef);
+$refCampo 	=  array("reftipocerveza");
 //////////////////////////////////////////////  FIN de los opciones //////////////////////////
 
 
@@ -55,11 +60,9 @@ $refCampo 	=  array();
 
 /////////////////////// Opciones para la creacion del view  /////////////////////
 $cabeceras 		= "	<th>Tipo Cerveza</th>
-					<th>Color</th>
-					<th>IBU</th>
-					<th>Alcohol</th>
 					<th>Precio</th>
-					<th>Distribuidor</th>";
+					<th>Desde</th>
+					<th>Hasta</th>";
 
 //////////////////////////////////////////////  FIN de los opciones //////////////////////////
 
@@ -68,7 +71,7 @@ $cabeceras 		= "	<th>Tipo Cerveza</th>
 
 $formulario 	= $serviciosFunciones->camposTabla($insertar ,$tabla,$lblCambio,$lblreemplazo,$refdescripcion,$refCampo);
 
-$lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosReferencias->traerTipoCervezas(),6);
+$lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosReferencias->traerExcepcionHorario(),4);
 
 
 
@@ -103,7 +106,7 @@ if ($_SESSION['refroll_predio'] != 1) {
     
     <script type="text/javascript" src="../../js/jquery-1.8.3.min.js"></script>
     <link rel="stylesheet" href="../../css/jquery-ui.css">
-
+	<link rel="stylesheet" type="text/css" href="../../css/jquery.datetimepicker.css"/>
     <script src="../../js/jquery-ui.js"></script>
     
 	<!-- Latest compiled and minified CSS -->
@@ -150,8 +153,8 @@ if ($_SESSION['refroll_predio'] != 1) {
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
         <li><a href="../index.php">Panel de Control</a></li>
-        <li class="active"><a href="index.php">Tipos de Cervezas <span class="sr-only">(current)</span></a></li>
-        <li><a href="../ventas/">Ventas</a></li>
+        <li><a href="../tiposcervezas/">Tipos de Cervezas</a></li>
+        <li class="active"><a href="excepcioneshorarias/">Excepciones Horarias <span class="sr-only">(current)</span></a></li>
         <li><a href="../usuarios/">Usuarios</a></li>
         <li><a href="../estadisticas/">Estadisticas</a></li>
         <li><a href="../informes/">Informes</a></li>
@@ -229,6 +232,7 @@ if ($_SESSION['refroll_predio'] != 1) {
 </div>
 <script type="text/javascript" src="../../js/jquery.dataTables.min.js"></script>
 <script src="../../bootstrap/js/dataTables.bootstrap.js"></script>
+<script src="../../js/jquery.datetimepicker.full.min.js"></script>
 
 <script type="text/javascript">
 $(document).ready(function(){
@@ -388,7 +392,20 @@ $(document).ready(function(){
 			});
 		}
     });
-
+	
+	$('#desde').datetimepicker({
+	dayOfWeekStart : 1,
+	format: 'Y-m-d H:i',
+	lang:'en'
+	});
+	$('#desde').datetimepicker({step:10});
+	
+	$('#hasta').datetimepicker({
+	dayOfWeekStart : 1,
+	format: 'Y-m-d H:i',
+	lang:'en'
+	});
+	$('#hasta').datetimepicker({step:10});
 });
 </script>
 <?php } ?>

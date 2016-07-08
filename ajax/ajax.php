@@ -64,6 +64,19 @@ case 'graficoTipoCervezas':
 graficoTipoCervezas($serviciosReferencias);
 break;
 /* Fin */
+
+/* PARA ExcepcionHorario */
+case 'insertarExcepcionHorario': 
+insertarExcepcionHorario($serviciosReferencias); 
+break; 
+case 'modificarExcepcionHorario': 
+modificarExcepcionHorario($serviciosReferencias); 
+break; 
+case 'eliminarExcepcionHorario': 
+eliminarExcepcionHorario($serviciosReferencias); 
+break; 
+
+/* Fin */
 }
 
 //////////////////////////Traer datos */////////////////////////////////////////////////////////////
@@ -175,6 +188,42 @@ function graficoTipoCervezas($serviciosReferencias) {
 
 
 /*********** FIN  *****************************/
+
+
+
+/* PARA ExcepcionHorario */
+function insertarExcepcionHorario($serviciosReferencias) { 
+$reftipocerveza = $_POST['reftipocerveza']; 
+$precio = $_POST['precio']; 
+$desde = $_POST['desde']; 
+$hasta = $_POST['hasta']; 
+$res = $serviciosReferencias->insertarExcepcionHorario($reftipocerveza,$precio,$desde,$hasta); 
+if ((integer)$res > 0) { 
+echo ''; 
+} else { 
+echo 'Huvo un error al insertar datos';	
+} 
+} 
+function modificarExcepcionHorario($serviciosReferencias) { 
+$id = $_POST['id']; 
+$reftipocerveza = $_POST['reftipocerveza']; 
+$precio = $_POST['precio']; 
+$desde = $_POST['desde']; 
+$hasta = $_POST['hasta']; 
+$res = $serviciosReferencias->modificarExcepcionHorario($id,$reftipocerveza,$precio,$desde,$hasta); 
+if ($res == true) { 
+echo ''; 
+} else { 
+echo 'Huvo un error al modificar datos'; 
+} 
+} 
+function eliminarExcepcionHorario($serviciosReferencias) { 
+$id = $_POST['id']; 
+$res = $serviciosReferencias->eliminarExcepcionHorario($id); 
+echo $res; 
+} 
+
+/* Fin */
 
 ////////////////////////// FIN DE TRAER DATOS ////////////////////////////////////////////////////////////
 

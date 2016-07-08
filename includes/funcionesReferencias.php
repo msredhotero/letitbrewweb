@@ -54,6 +54,25 @@ $res = $this->query($sql,0);
 return $res;
 }
 
+function traerTipoCervezasExcepciones() {
+$sql = "SELECT 
+    tc.idtipocerveza,
+    tc.tipocerveza,
+    tc.color,
+    tc.ibu,
+    tc.alcohol,
+    coalesce( e.precio,tc.precio) as precio,
+    tc.distribuidor,
+    tc.observaciones
+FROM
+    tbtipocervezas tc
+    left join	dbexcepcionhorario e
+    on			e.reftipocerveza = tc.idtipocerveza
+ORDER BY tc.tipocerveza";
+$res = $this->query($sql,0);
+return $res;
+}
+
 
 function traerTipoCervezasPorId($id) {
 $sql = "select idtipocerveza,tipocerveza,color,ibu,alcohol,precio,distribuidor,observaciones from tbtipocervezas where idtipocerveza =".$id;
@@ -292,7 +311,137 @@ if ($where != '') {
 	return $cad;	
 }
 
+
+function graficoTipoCervezasBarras($where) {
+if ($where != '') {
+		$sql = "select
+					tc.idtipocerveza, tc.tipocerveza, coalesce(sum(v.cantidad),0)
+				from dbventas v 
+					inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
+				where v.cancelado = 0
+				group by tc.idtipocerveza, tc.tipocerveza
+				order by tc.tipocerveza
+		";
+		
+		
+		$sqlT = "select
+			sum(v.cantidad)
+		
+		from dbventas v 
+					inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
+				where v.cancelado = 0
+				";
+
+		
+	} else {
+		$sql = "select
+					tc.idtipocerveza, tc.tipocerveza, coalesce(sum(v.cantidad),0) as cantidad
+				from dbventas v 
+					inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
+				where v.cancelado = 0
+				group by tc.idtipocerveza, tc.tipocerveza
+				order by tc.tipocerveza
+		";
+		
+		
+		$sqlT = "select
+			sum(v.cantidad)
+		
+		from dbventas v 
+					inner join tbtipocervezas tc on tc.idtipocerveza = v.reftipocerveza
+				where v.cancelado = 0
+				";
+	}
+	
+	$resT = mysql_result($this->query($sqlT,0),0,0);
+	$resR = $this->query($sql,0);
+	/*
+	Morris.Bar({
+	  element: 'bar-example',
+	  data: [
+		{ y: '2006', a: 100, b: 90 },
+		{ y: '2007', a: 75,  b: 65 },
+		{ y: '2008', a: 50,  b: 40 },
+		{ y: '2009', a: 75,  b: 65 },
+		{ y: '2010', a: 50,  b: 40 },
+		{ y: '2011', a: 75,  b: 65 },
+		{ y: '2012', a: 100, b: 90 }
+	  ],
+	  xkey: 'y',
+	  ykeys: ['a']
+	});
+	*/
+	$cad	= "Morris.Bar({
+              element: 'barras',
+              data: [";
+	$cadValue = '';
+	if ($resT > 0) {
+		while ($row = mysql_fetch_array($resR)) {
+			$cadValue .= "{y: '".$row[1]."', a: ".$row[2]."},";
+		}
+	}
+	
+/*
+                {value: ".$porcentajeOportunidad.", label: 'Oportunidad'},
+                {value: ".$porcentajeNormal.", label: 'Normal'},
+                {value: ".$porcentajeCaro.", label: 'Caro'},
+                {value: ".$porcentajeFueraMercado.", label: 'Fuera del Mercado'}*/
+	$cad .= substr($cadValue,0,strlen($cadValue)-1);
+    $cad .=          "],
+			  xkey: 'y',
+			  ykeys: ['a'],
+  				labels: ['Cantidad de Litros']
+            });";
+			
+	return $cad;	
+}
+
 /* FIN */
+
+
+/* PARA ExcepcionHorario */
+
+function insertarExcepcionHorario($reftipocerveza,$precio,$desde,$hasta) { 
+$sql = "insert into dbexcepcionhorario(idexcepcionhorario,reftipocerveza,precio,desde,hasta) 
+values ('',".$reftipocerveza.",".$precio.",'".utf8_decode($desde)."','".utf8_decode($hasta)."')"; 
+$res = $this->query($sql,1); 
+return $res; 
+} 
+
+
+function modificarExcepcionHorario($id,$reftipocerveza,$precio,$desde,$hasta) { 
+$sql = "update dbexcepcionhorario 
+set 
+reftipocerveza = ".$reftipocerveza.",precio = ".$precio.",desde = '".utf8_decode($desde)."',hasta = '".utf8_decode($hasta)."' 
+where idexcepcionhorario =".$id; 
+$res = $this->query($sql,0); 
+return $res; 
+} 
+
+
+function eliminarExcepcionHorario($id) { 
+$sql = "delete from dbexcepcionhorario where idexcepcionhorario =".$id; 
+$res = $this->query($sql,0); 
+return $res; 
+} 
+
+
+function traerExcepcionHorario() { 
+$sql = "select e.idexcepcionhorario,tc.tipocerveza,e.precio,e.desde,e.hasta, e.reftipocerveza from dbexcepcionhorario e
+		inner join tbtipocervezas tc on tc.idtipocerveza = e.reftipocerveza
+ order by tc.tipocerveza, e.desde"; 
+$res = $this->query($sql,0); 
+return $res; 
+} 
+
+
+function traerExcepcionHorarioPorId($id) { 
+$sql = "select idexcepcionhorario,reftipocerveza,precio,desde,hasta from dbexcepcionhorario where idexcepcionhorario =".$id; 
+$res = $this->query($sql,0); 
+return $res; 
+} 
+
+/* Fin */
 /* Fin */
 
 function query($sql,$accion) {

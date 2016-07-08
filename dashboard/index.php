@@ -31,7 +31,7 @@ $tituloWeb = "Gestión: Let it Brew";
 //////////////////////// Fin opciones ////////////////////////////////////////////////
 
 
-$resTiposCervezas	= $serviciosReferencias->traerTipoCervezas();
+$resTiposCervezas	= $serviciosReferencias->traerTipoCervezasExcepciones();
 
 
 /////////////////////// Opciones para la creacion del view  /////////////////////
@@ -148,7 +148,7 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
       <ul class="nav navbar-nav">
         <li class="active"><a href="#">Panel de Control <span class="sr-only">(current)</span></a></li>
         <li><a href="tiposcervezas/">Tipos de Cervezas</a></li>
-        <li><a href="ventas/">Ventas</a></li>
+        <li><a href="excepcioneshorarias/">Excepciones Horarias</a></li>
         <li><a href="usuarios/">Usuarios</a></li>
         <li><a href="estadisticas/">Estadisticas</a></li>
         <li><a href="informes/">Informes</a></li>

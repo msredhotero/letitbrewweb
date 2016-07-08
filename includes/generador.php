@@ -33,8 +33,8 @@ function query($sql,$accion) {
 }
 
 
-$tabla 		= "tbtipocervezas";
-$nombre 	= "TipoCervezas";
+$tabla 		= "dbexcepcionhorario";
+$nombre 	= "ExcepcionHorario";
 $servicios	= "Referencias";
 
 $sql	=	"show columns from ".$tabla;

@@ -28,7 +28,7 @@ $fecha = date('Y-m-d');
 $resTiposCervezas1	= $serviciosReferencias->traerTipoCervezas();
 $resTiposCervezas2	= $serviciosReferencias->traerTipoCervezas();
 
-
+$resGraficoBarras   = $serviciosReferencias->graficoTipoCervezasBarras('');
 ?>
 
 <!DOCTYPE HTML>
@@ -105,7 +105,7 @@ $resTiposCervezas2	= $serviciosReferencias->traerTipoCervezas();
       <ul class="nav navbar-nav">
         <li><a href="../">Panel de Control</a></li>
         <li><a href="../tiposcervezas/">Tipos de Cervezas</a></li>
-        <li><a href="../ventas/">Ventas</a></li>
+        <li><a href="../excepcioneshorarias/">Excepciones Horarias</a></li>
         <li><a href="../usuarios/">Usuarios</a></li>
         <li class="active"><a href="index.php">Estadisticas <span class="sr-only">(current)</span></a></li>
         <li><a href="../informes/">Informes</a></li>
@@ -128,11 +128,22 @@ $resTiposCervezas2	= $serviciosReferencias->traerTipoCervezas();
 
                 <div class="col-md-4">
                     <div align="center">
-                    <h3>Cervezas</h3>
+                    <h3>Cervezas %</h3>
                     </div>
                     
                     <div id="graph"></div>
                     <pre id="code" class="prettyprint linenums">
+        
+                    </pre>
+                </div>
+                
+                
+                <div class="col-md-8">
+                    <div align="center">
+                    <h3>Cervezas Cantidades</h3>
+                    </div>
+                    
+                    <div id="barras"></div>
         
                     </pre>
                 </div>
@@ -335,7 +346,8 @@ $(document).ready(function(){
 	
 	
 	GraficoCerveza();
-
+	
+	<?php echo $resGraficoBarras; ?>
 	
 });
 </script>
