@@ -128,6 +128,10 @@ if ($_SESSION['refroll_predio'] == 2) {
         <li><a href="../../logout.php">Salir</a></li>
       </ul>
       
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">Usuario:<span style="color:#039;"><?php echo $_SESSION['nombre_predio']; ?></span></a></li>
+        <li><a href="../logout.php">Salir</a></li>
+      </ul> 
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav> 

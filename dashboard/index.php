@@ -117,7 +117,7 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
     </script>
     
     <link rel="stylesheet" href="../css/chosen.css">
-    
+    <script src="../js/jquery.hotkeys-0.7.7-packed.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.2/raphael-min.js"></script>
 	<script src="../js/graficos/morris.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/r224/prettify.min.js"></script>
@@ -155,6 +155,10 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
         <li><a href="../logout.php">Salir</a></li>
       </ul>
       
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">Usuario:<span style="color:#039;"><?php echo $_SESSION['nombre_predio']; ?></span></a></li>
+        <li><a href="logout.php">Salir</a></li>
+      </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav> 
@@ -205,7 +209,7 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
                 
             </div>
             <div align="center">
-                <h5>Cerveza: <span style="font-weight:bold; font-size:1.3em;"><?php echo $rowC[1]; ?></span> <span style=" background-color: #0F3;" class="badge" id="<?php echo 'badge'.$rowC[0]; ?>"><?php echo $cantVentas; ?></span><span class="badge" style=" background-color: #009;" id="<?php echo 'badgeL'.$rowC[0]; ?>"><?php echo $cantLitros; ?></span></h5>
+                <h5>Cerveza: <span id="<?php echo 'nombre'.$rowC[0]; ?>" style="font-weight:bold; font-size:1.3em;"><?php echo $rowC[1]; ?></span> <span style=" background-color: #0F3;" class="badge" id="<?php echo 'badge'.$rowC[0]; ?>"><?php echo $cantVentas; ?></span><span class="badge" style=" background-color: #009;" id="<?php echo 'badgeL'.$rowC[0]; ?>"><?php echo $cantLitros; ?></span></h5>
                 <h5>Precio: $<?php echo $rowC['precio']; ?></h5>
                 <h5>IBU: <?php echo $rowC['ibu']; ?></h5>
                 <h5>Alcohol: <?php echo $rowC['alcohol']; ?></h5>            
@@ -242,9 +246,7 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
             </div>
             
             <div class='form-group col-md-12' style="height:50px; display:block;">
-                <div class='alert error<?php echo $rowC[0]; ?> alert-dismissable'>
-                	<button type="button" class="close" data-dismiss="alert">&times;</button>
-                </div>
+                <div class='alert error<?php echo $rowC[0]; ?>'></div>
                 <div id='load'>
                 
                 </div>
@@ -290,6 +292,10 @@ $lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosRefere
         <p><strong>Importante: </strong>Si cancelara la venta pero no se borrara.</p>
         <input type="hidden" value="" id="idEliminar" name="idEliminar">
 </div>
+
+<div id="dialog3" title="Pensas Vender???">
+    	<img src="../imagenes/antonella3.jpg" />
+</div>
 <script type="text/javascript" src="../js/jquery.dataTables.min.js"></script>
 <script src="../bootstrap/js/dataTables.bootstrap.js"></script>  
 
@@ -320,7 +326,33 @@ $(document).ready(function(){
 			}
 		  }
 	} );
-						
+	
+	function getActualFullDate() {
+		var d = new Date();
+		var day = d.getDate();
+		if (day < 10) {
+			day = '0' + day;
+		}
+		var month = d.getMonth();
+		if (month < 10) {
+			month = '0' + month;
+		}
+		var year = d.getFullYear();
+		var h = d.getHours();
+		if (h < 10) {
+			h = '0' + h;
+		}
+		var m = d.getMinutes();
+		if (m < 10) {
+			m = '0' + m;
+		}
+		var s = d.getSeconds();
+		if (s < 10) {
+			s = '0' + s;
+		}
+		return year + '-' + month + "-" + day + " " + h + ":" + m + ":" + s;
+	}
+	//alert(getActualFullDate());
 	function insertarVenta(precio, cantidad, tipocerveza, label) {
 		$.ajax({
 				data:  {precioventa : precio,
@@ -343,19 +375,26 @@ $(document).ready(function(){
 						$('.error'+label).removeClass("alert-danger");
 						$('.error'+label).removeClass("alert-info");
                         $('.error'+label).addClass("alert-success");
-                        $('.error'+label).append('<strong>Ok!</strong> Se cargo correctamente</strong>. ');
+                        $('.error'+label).html('<div class="alert-dismissable"><button type="button" class="close" data-dismiss="alert" id="cerrar">&times;</button><p><strong>Ok!</strong> Se cargo correctamente</strong>.</p></div>');
+						
+						$('#example').prepend('<tr><td>' + $('#nombre'+label).html() + '</td><td>' + cantidad.toString() + '</td><td>' + (parseFloat(precio*cantidad)).toFixed(2) + '</td><td>' + '<?php echo $_SESSION['nombre_predio']; ?>' + '</td><td>' + getActualFullDate() + '</td><td>No</td><td style="color:#f00;">Nuevo</td></tr>').fadeIn(300);
 					} else {
 					
 						$('.error'+label).removeClass("alert-danger");
                         $('.error'+label).addClass("alert-danger");
-                        $('.error'+label).append('<strong>Error!</strong> '+response);
-					}
+                        $('.error'+label).append('<div class="alert-dismissable"><button type="button" class="close" data-dismiss="alert" id="cerrar">&times;</button><p><strong>Error!</strong> '+response+'</p></div>');
+					}$.now()
 						
 				}
 		});
 	}
 	
-	
+
+	$(".contCerveza2").on("click",'#cerrar', function(){
+        $('.alert').removeClass("alert-danger");
+		$('.alert').removeClass("alert-info");
+		$('.alert').removeClass("alert-success");
+    });
 	
 	$('.cargar').click(function(){
 		tipocerveza =  $(this).attr("id");
@@ -421,9 +460,47 @@ $(document).ready(function(){
 		 
 	 		}); //fin del dialogo para eliminar
 	
-	
+	$( "#dialog3" ).dialog({
+					
+						autoOpen: false,
+						resizable: true,
+						width:800,
+						height:600,
+						modal: true,
+						buttons: {
+							"Si": function() {
+			
+								
+								$( this ).dialog( "close" );
+								$( this ).dialog( "close" );
+									$('html, body').animate({
+										scrollTop: '1000px'
+									},
+									1500);
+							},
+							Salir: function() {
+								$( this ).dialog( "close" );
+							}
+						}
+				 
+				 
+					}); //fin del dialogo para eliminar
+
+var isCtrl = false;$(document).keyup(function (e) {
+if(e.which == 17) isCtrl=false;
+}).keydown(function (e) {
+    if(e.which == 17) isCtrl=true;
+    if(e.which == 81 && isCtrl == true) {
+        $("#dialog3").dialog("open");
+ 	return false;
+ }
 });
+
+});
+
+
 </script>
+
 <?php } ?>
 </body>
 </html>
